@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  frontend:
+    image: nginx:latest
+    volumes:
+     - ./frontend/nginx.conf:/etc/nginx/nginx.conf
+     - ./frontend/htdocs:/usr/share/nginx/html
+    ports:
+     - "8080:8080"
+    networks:
+      - front-tier
+
+networks:
+  front-tier:
+  back-tier:
