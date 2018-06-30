@@ -40,7 +40,7 @@ playGame.prototype = {
 		game.scale.pageAlignVertically = true;
         game.stage.disableVisibilityChange = true;
         game.load.image("ground", "assets/sprites/ground.png");
-        game.load.image("sky", "assets/sprites/sky.png");
+        game.load.image("sky", "images/background.png");
         game.load.image("crate", "assets/sprites/crate.png");
         game.load.image("title", "assets/sprites/title.png");
         game.load.image("tap", "assets/sprites/tap.png");
