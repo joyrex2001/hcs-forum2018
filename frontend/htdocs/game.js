@@ -102,7 +102,7 @@ playGame.prototype = {
         var tap = game.add.sprite(game.width / 2, game.height / 2, "tap");
         tap.anchor.set(0.5);
         this.menuGroup.add(tap);
-        var title = game.add.image(game.width / 2 - 20, tap.y - 470, "title");
+        var title = game.add.image(game.width / 2, tap.y - 470, "title");
         title.anchor.set(0.5, 0);
         this.menuGroup.add(title);
         var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "BEST SCORE", 24);
