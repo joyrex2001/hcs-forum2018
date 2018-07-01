@@ -121,7 +121,7 @@ playGame.prototype = {
             this.menuGroup.destroy();
             this.timer = 0;
             this.timerEvent = game.time.events.loop(Phaser.Timer.SECOND, this.tick, this);
-            this.timeText = game.add.bitmapText(10, 10, "font", gameOptions.timeLimit.toString(), 72);
+            this.timeText = game.add.bitmapText(game.width - 150, 10, "font", gameOptions.timeLimit.toString(), 72);
         }
         if(this.canDrop && this.timer <= gameOptions.timeLimit){
             this.canDrop = false;
