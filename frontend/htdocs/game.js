@@ -232,7 +232,7 @@ playGame.prototype = {
       var title = game.add.image(game.width / 2, tap.y - 470, "title");
       title.anchor.set(0.5, 0);
       this.menuGroup.add(title);
-      var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "BEST SCORE", 24);
+      var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "YOUR BEST SCORE", 24);
       hiScoreText.anchor.set(0.5);
       this.menuGroup.add(hiScoreText);
       var hiScore = game.add.bitmapText(game.width / 2, game.height - 20, "font", player.highscore.toString(), 72);

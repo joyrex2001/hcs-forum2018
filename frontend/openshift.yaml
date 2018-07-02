@@ -16,6 +16,21 @@ parameters:
   required: true
   value: frontend
 
+- name: SERVER_PORT
+  description: The port the server will run on inside the container
+  displayName: Server Port
+  value: '8080'
+
+- name: KAFKA_HOST
+  description: Host name of the Kafka service
+  displayName: Kafka Host
+  value: "apache-kafka"
+
+- name: ZOOKEEPER_PORT
+  description: Port of the Zookeeper service running on the Kafka service
+  displayName: ZooKeeper port
+  value: "2181"
+
 - name: MEMORY_LIMIT
   description: Maximum amount of memory the container can use.
   displayName: Memory Limit
@@ -113,19 +128,28 @@ objects:
         containers:
           - name: ${NAME}
             image: "${NAME}:latest"
+            env:
+              - name: "SERVER_PORT"
+                value: "${SERVER_PORT}"
+              - name: "KAFKA_HOST"
+                value: "${KAFKA_HOST}"
+              - name: "KAFKA_TOPIC"
+                value: "${KAFKA_TOPIC}"
+              - name: "ZOOKEEPER_PORT"
+                value: "${ZOOKEEPER_PORT}"
             ports:
             - containerPort: 8080
             readinessProbe:
               timeoutSeconds: 3
               initialDelaySeconds: 3
               httpGet:
-                path: "/"
+                path: "/healthz"
                 port: 8080
             livenessProbe:
               timeoutSeconds: 3
               initialDelaySeconds: 30
               httpGet:
-                path: "/"
+                path: "/healthz"
                 port: 8080
             resources:
               limits:

@@ -2,14 +2,29 @@ version: "2"
 
 services:
   frontend:
-    image: nginx:latest
+    build: ./frontend
     volumes:
-     - ./frontend/nginx.conf:/etc/nginx/nginx.conf
-     - ./frontend/htdocs:/usr/share/nginx/html
+      - ./frontend:/opt/app-root/src
+    environment:
+      SERVER_PORT: "8080"
+      ENABLE_KAFKA: 1
+      KAFKA_HOST: "apache-kafka"
+      ZOOKEEPER_PORT: "2181"
     ports:
      - "8080:8080"
     networks:
       - front-tier
+
+  apache-kafka:
+    image: spotify/kafka:latest
+    volumes:
+      - ./.data/kafka-logs:/tmp/kafka-logs
+    ports:
+      - "2181:2181"
+      - "9092:9092"
+    networks:
+      - front-tier
+      - back-tier
 
 networks:
   front-tier:

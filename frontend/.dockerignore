@@ -1,0 +1,5 @@
+.nvmrc
+.config
+.npm
+.npm-global
+node_modules

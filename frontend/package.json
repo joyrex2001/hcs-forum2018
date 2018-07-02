@@ -2,7 +2,7 @@
   "name": "stack-the-containers",
   "version": "1.0.0",
   "author": "",
-  "license": "MIT",
+  "license": "",
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "express": "^4.16.3",
+    "kafka-node": "^2.6.1",
     "socket.io": "^2.1.1"
   }
 }
