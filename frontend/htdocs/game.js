@@ -34,7 +34,7 @@ window.onload = function() {
     game.state.start("PlayGame");
     try {
       wsc.connect();
-      wsc.start(player);
+      wsc.startGame(player);
     } catch(e) { console.log(e); }
 }
 
