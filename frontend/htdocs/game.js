@@ -7,7 +7,6 @@ var gameOptions = {
     crateSpeed: 500,
     crateHorizontalRange: 540,
     fallingHeight: 700,
-    localStorageName: "stackthecratesgame",
     gameWidth: 640,
     gameHeight: 960
 }
@@ -214,10 +213,7 @@ playGame.prototype = {
             scoreText.anchor.set(0.5);
             var scoreDisplayText = game.add.bitmapText(game.width / 2, game.height / 5 + 140, "font", this.score.toString(), 144);
             scoreDisplayText.anchor.set(0.5);
-            // handle score
-            try { wsc.sendScore(player, this.score); } catch(e) { console.log(e); }
-            player.highscore = Math.max(this.score, player.highscore)
-            player.Update()
+            this.handleHighscore()
             game.time.events.add(Phaser.Timer.SECOND * 5, function(){
                 game.state.start("PlayGame");
             }, this);
@@ -289,5 +285,23 @@ playGame.prototype = {
     clearAttract: function() {
       game.time.events.remove(this.attractEvent)
       this.menuGroup.destroy();
+    },
+    handleHighscore: function() {
+        var highscores = wsc.getHighscores();
+        var curScore = this.score;
+        var isFamous = highscores.find(function(s) {
+          return curScore > s.score;
+        });
+        if (isFamous) this.askName();
+        try { wsc.sendScore(player, this.score); } catch(e) { console.log(e); }
+        player.highscore = Math.max(this.score, player.highscore)
+        player.Update()
+    },
+    askName: function() {
+        var name = prompt("Nickname", player.name);
+        if(name) {
+            player.name = name;
+            player.Update();
+        }
     }
 }
