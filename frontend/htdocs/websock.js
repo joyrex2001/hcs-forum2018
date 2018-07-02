@@ -1,5 +1,9 @@
+// Websocket client
+
 var wsc = {
   socket: null,
+  highscore: [],
+  // connection management
   connect: function() {
     var self = this;
     if( self.socket ) {
@@ -20,5 +24,18 @@ var wsc = {
       console.log( 'disconnected from server' );
       window.setTimeout( 'app.connect()', 5000 );
     } );
+    this.socket.on( 'highscore', function (data) {
+      self.highscore = data;
+    } );
+  },
+  // events
+  startGame: function(player) {
+    this.socket.emit('start', player);
+  },
+  getHighscores: function() {
+    return this.highscore;
+  },
+  sendScore: function(player, score) {
+    this.socket.emit('gameover',player, score);
   }
 };

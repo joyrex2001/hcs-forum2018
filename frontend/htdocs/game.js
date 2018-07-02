@@ -34,7 +34,7 @@ window.onload = function() {
     game.state.start("PlayGame");
     try {
       wsc.connect();
-      wsc.socket.emit('start',player);
+      wsc.start(player);
     } catch(e) { console.log(e); }
 }
 
@@ -215,7 +215,7 @@ playGame.prototype = {
             var scoreDisplayText = game.add.bitmapText(game.width / 2, game.height / 5 + 140, "font", this.score.toString(), 144);
             scoreDisplayText.anchor.set(0.5);
             // handle score
-            try { wsc.socket.emit('gameover',player, this.score); } catch(e) { console.log(e); }
+            try { wsc.sendScore(player, this.score); } catch(e) { console.log(e); }
             player.highscore = Math.max(this.score, player.highscore)
             player.Update()
             game.time.events.add(Phaser.Timer.SECOND * 5, function(){
@@ -245,7 +245,7 @@ playGame.prototype = {
     showInfo: function(){
       this.menuGroup.destroy();
       this.menuGroup = game.add.group();
-      var info =
+      var infoTxt =
       "Stack The Containers\n\n"+
       "Dit spel is gemaakt door HCS Company.\n"+
       "Wij geloven in de kunst van de eenvoud.\n"+
@@ -260,21 +260,20 @@ playGame.prototype = {
       "om ons continu optimaal af te stemmen op de\n"+
       "veranderingen om ons heen. HCS Company brengt\n"+
       "eenvoud in automatisering..\n";
-      var text = this.game.add.bitmapText(game.width / 2, 100, "font", info, 24);
+      var text = this.game.add.bitmapText(game.width / 2, 100, "font", infoTxt, 24);
       text.anchor.set(0.5, 0);
       this.menuGroup.add(text);
     },
     showTopscores: function(){
       this.menuGroup.destroy();
       this.menuGroup = game.add.group();
-      var scores =
-        "Topscores\n\n"+
-        "71 - joyrex2001\n"+
-        "70 - kischpijn\n"+
-        "56 - joyrex2001\n"+
-        "49 - gernrna\n"+
-        "43 - channed\n";
-      var text = this.game.add.bitmapText(game.width / 2, 100, "font", scores, 50);
+      var scoreTxt = "Topscores\n\n";
+      var highscores = wsc.getHighscores();
+      highscores.forEach(function(s) {
+        scoreTxt = scoreTxt + s.name + " :: " + s.score + "\n";
+      });
+      var text = this.game.add.bitmapText(game.width / 2, 100, "font", scoreTxt, 50);
+      text.align = 'center'
       text.anchor.set(0.5, 0);
       this.menuGroup.add(text);
     },
