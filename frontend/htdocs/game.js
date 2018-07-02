@@ -32,8 +32,10 @@ window.onload = function() {
     game = new Phaser.Game(gameOptions.gameWidth, gameOptions.gameHeight, Phaser.CANVAS);
     game.state.add("PlayGame", playGame);
     game.state.start("PlayGame");
-    wsc.connect();
-    wsc.socket.emit('start',player);
+    try {
+      wsc.connect();
+      wsc.socket.emit('start',player);
+    } catch(e) { console.log(e); }
 }
 
 var playGame = function(){};
@@ -101,28 +103,19 @@ playGame.prototype = {
         ground.body.static = true;
         ground.body.setCollisionCategory(1);
         this.cameraGroup.add(ground);
+
+        // set game input
         game.input.onDown.add(this.dropCrate, this);
+
+        // create menu "menuGroup" and display it
+        this.attractView = 0;
         this.menuGroup = game.add.group();
-        var tap = game.add.sprite(game.width / 2, game.height / 2, "tap");
-        tap.anchor.set(0.5);
-        this.menuGroup.add(tap);
-        var title = game.add.image(game.width / 2, tap.y - 470, "title");
-        title.anchor.set(0.5, 0);
-        this.menuGroup.add(title);
-        var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "BEST SCORE", 24);
-        hiScoreText.anchor.set(0.5);
-        this.menuGroup.add(hiScoreText);
-        var hiScore = game.add.bitmapText(game.width / 2, game.height - 20, "font", player.highscore.toString(), 72);
-        hiScore.anchor.set(0.5);
-        this.menuGroup.add(hiScore);
-        var tapTween = game.add.tween(tap).to({
-            alpha: 0
-        }, 150, Phaser.Easing.Cubic.InOut, true, 0, -1, true);
-	},
+        this.attractMode()
+  	},
     dropCrate: function(){
         if(this.firstCrate){
+            this.clearAttract();
             this.firstCrate = false;
-            this.menuGroup.destroy();
             this.timer = 0;
             this.timerEvent = game.time.events.loop(Phaser.Timer.SECOND, this.tick, this);
             this.timeText = game.add.bitmapText(10, 10, "font", gameOptions.timeLimit.toString(), 72);
@@ -222,12 +215,80 @@ playGame.prototype = {
             var scoreDisplayText = game.add.bitmapText(game.width / 2, game.height / 5 + 140, "font", this.score.toString(), 144);
             scoreDisplayText.anchor.set(0.5);
             // handle score
-            wsc.socket.emit('gameover',player, this.score);
+            try { wsc.socket.emit('gameover',player, this.score); } catch(e) { console.log(e); }
             player.highscore = Math.max(this.score, player.highscore)
             player.Update()
             game.time.events.add(Phaser.Timer.SECOND * 5, function(){
                 game.state.start("PlayGame");
             }, this);
         }
+    },
+    showTitle: function(){
+      this.menuGroup.destroy();
+      this.menuGroup = game.add.group();
+      var tap = game.add.sprite(game.width / 2, game.height / 2, "tap");
+      tap.anchor.set(0.5);
+      this.menuGroup.add(tap);
+      var title = game.add.image(game.width / 2, tap.y - 470, "title");
+      title.anchor.set(0.5, 0);
+      this.menuGroup.add(title);
+      var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "BEST SCORE", 24);
+      hiScoreText.anchor.set(0.5);
+      this.menuGroup.add(hiScoreText);
+      var hiScore = game.add.bitmapText(game.width / 2, game.height - 20, "font", player.highscore.toString(), 72);
+      hiScore.anchor.set(0.5);
+      this.menuGroup.add(hiScore);
+      var tapTween = game.add.tween(tap).to({
+          alpha: 0
+      }, 150, Phaser.Easing.Cubic.InOut, true, 0, -1, true);
+    },
+    showInfo: function(){
+      this.menuGroup.destroy();
+      this.menuGroup = game.add.group();
+      var info =
+      "Stack The Containers\n\n"+
+      "Dit spel is gemaakt door HCS Company.\n"+
+      "Wij geloven in de kunst van de eenvoud.\n"+
+      "Het is onze visie dat eenvoud het middel\n"+
+      "is te transformeren naar een digitale\n"+
+      "organisatie. Of het nu gaat om de inrichting\n"+
+      "van IT of de manier waarop we samenwerken,\n"+
+      "we hebben het met elkaar de afgelopen decennia\n"+
+      "nodeloos complex gemaakt. Door de gecreëerde\n"+
+      "samenhang, generalisatie en over-organisatie\n"+
+      "missen we de benodigde snelheid en wendbaarheid\n"+
+      "om ons continu optimaal af te stemmen op de\n"+
+      "veranderingen om ons heen. HCS Company brengt\n"+
+      "eenvoud in automatisering..\n";
+      var text = this.game.add.bitmapText(game.width / 2, 100, "font", info, 24);
+      text.anchor.set(0.5, 0);
+      this.menuGroup.add(text);
+    },
+    showTopscores: function(){
+      this.menuGroup.destroy();
+      this.menuGroup = game.add.group();
+      var scores =
+        "Topscores\n\n"+
+        "71 - joyrex2001\n"+
+        "70 - kischpijn\n"+
+        "56 - joyrex2001\n"+
+        "49 - gernrna\n"+
+        "43 - channed\n";
+      var text = this.game.add.bitmapText(game.width / 2, 100, "font", scores, 50);
+      text.anchor.set(0.5, 0);
+      this.menuGroup.add(text);
+    },
+    attractMode: function() {
+        switch(this.attractView) {
+          case 0: this.showTitle(); break;
+          case 1: this.showTopscores(); break;
+          case 2: this.showInfo(); break;
+        }
+        this.attractView = (this.attractView+1)%2; // skip info
+        this.attractEvent = game.time.events.add(Phaser.Timer.SECOND * 5, this.attractMode, this);
+    },
+    clearAttract: function() {
+      game.time.events.remove(this.attractEvent)
+      this.menuGroup.destroy();
     }
 }

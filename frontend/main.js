@@ -12,11 +12,13 @@ function healthz(req, res) {
 // getScores will return the current global highscore list
 function getScores() {
   console.log("get scrores")
+  // read last message from highscores topic
 }
 
 // addScore will add a score to the global highscore list
 function addScore(player, score) {
   console.log(`add score ${score} for ${player.name} (${player.id})`)
+  // send current score to score topic
 }
 
 // eventHandler will handle the events for registered player on given socket.
