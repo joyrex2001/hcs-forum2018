@@ -40,12 +40,28 @@ function sendKafka(producer, topic, id, data) {
   })
 }
 
+// updateLocalHighscore will update the local highscore table.
+function updateLocalHighscore(player,score) {
+    var newHighscores = []
+    var added = false
+    highscores.forEach(function(d) {
+      if (d.score < score && !added) {
+        newHighscores.push({ score: score, id: player.id, name: player.name })
+        added = true
+      }
+      newHighscores.push(d)
+    })
+    highscores = newHighscores.slice(0,10)
+}
+
 // eventHandler will handle the events for registered player on given socket.
 function eventHandler(socket,producer) {
   socket.emit('highscore',highscores)
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.name} (${player.id})`)
+    updateLocalHighscore(player,score)
     sendKafka(producer, "score", player.id, score)
+    if (!config.enable_kafka) io.emit('highscore',highscores)
   })
 }
 
