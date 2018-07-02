@@ -1,4 +1,5 @@
 var game;
+var player;
 
 var gameOptions = {
     timeLimit: 60,
@@ -26,9 +27,13 @@ window.onload = function() {
             gameOptions.gameHeight = gameOptions.gameWidth * ratio;
         }
     }
+    player = new Player();
+    player.Update();
     game = new Phaser.Game(gameOptions.gameWidth, gameOptions.gameHeight, Phaser.CANVAS);
     game.state.add("PlayGame", playGame);
     game.state.start("PlayGame");
+    wsc.connect();
+    wsc.socket.emit('start',player);
 }
 
 var playGame = function(){};
@@ -36,8 +41,8 @@ var playGame = function(){};
 playGame.prototype = {
     preload:function(){
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		game.scale.pageAlignHorizontally = true;
-		game.scale.pageAlignVertically = true;
+        game.scale.pageAlignHorizontally = true;
+        game.scale.pageAlignVertically = true;
         game.stage.disableVisibilityChange = true;
         game.load.image("ground", "assets/sprites/ground.png");
         game.load.image("sky", "images/background.png");
@@ -67,7 +72,6 @@ playGame.prototype = {
             })
         }
         this.lastSoundPlayed = Date.now() ;
-        this.savedData = localStorage.getItem(gameOptions.localStorageName) == null ? {score : 0} : JSON.parse(localStorage.getItem(gameOptions.localStorageName));
         this.hitSound = [game.add.audio("hit01"), game.add.audio("hit02"), game.add.audio("hit03")];
         this.gameOverSound = game.add.audio("gameover");
         this.removeSound = game.add.audio("remove");
@@ -108,7 +112,7 @@ playGame.prototype = {
         var hiScoreText = game.add.bitmapText(game.width / 2, game.height - 74, "smallfont", "BEST SCORE", 24);
         hiScoreText.anchor.set(0.5);
         this.menuGroup.add(hiScoreText);
-        var hiScore = game.add.bitmapText(game.width / 2, game.height - 20, "font", this.savedData.score.toString(), 72);
+        var hiScore = game.add.bitmapText(game.width / 2, game.height - 20, "font", player.highscore.toString(), 72);
         hiScore.anchor.set(0.5);
         this.menuGroup.add(hiScore);
         var tapTween = game.add.tween(tap).to({
@@ -217,9 +221,10 @@ playGame.prototype = {
             scoreText.anchor.set(0.5);
             var scoreDisplayText = game.add.bitmapText(game.width / 2, game.height / 5 + 140, "font", this.score.toString(), 144);
             scoreDisplayText.anchor.set(0.5);
-            localStorage.setItem(gameOptions.localStorageName,JSON.stringify({
-                    score: Math.max(this.score, this.savedData.score)
-            }));
+            // handle score
+            wsc.socket.emit('gameover',player, this.score);
+            player.highscore = Math.max(this.score, player.highscore)
+            player.Update()
             game.time.events.add(Phaser.Timer.SECOND * 5, function(){
                 game.state.start("PlayGame");
             }, this);

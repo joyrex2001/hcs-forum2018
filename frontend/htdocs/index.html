@@ -3,7 +3,7 @@
     <head>
 		<title>HCS - Stack the Containers</title>
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, maximum-scale = 1.0, minimum-scale = 1.0, user-scalable = 0, minimal-ui" />
-        <link rel = "shortcut icon" sizes = "256x256" href = "icon-256.png" />
+        <link rel="icon" type="image/png" href="icon.png">
         <style type = "text/css">
             * {
                 padding: 0;
@@ -29,8 +29,11 @@
                 display: none;
             }
         </style>
-        <script src = "phaser.min.js"></script>
-        <script src="box2d-plugin-full.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src = "/lib/phaser.min.js"></script>
+        <script src="/lib/box2d-plugin-full.js"></script>
+        <script src = "websock.js"></script>
+        <script src = "player.js"></script>
         <script src = "game.js"></script>
     </head>
     <body>
