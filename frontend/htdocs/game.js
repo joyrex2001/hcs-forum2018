@@ -298,7 +298,7 @@ playGame.prototype = {
         player.Update()
     },
     askName: function() {
-        var name = prompt("Nickname", player.name);
+        var name = prompt("Topscore!", player.name);
         if(name) {
             player.name = name;
             player.Update();

@@ -25,45 +25,41 @@ function uuid() {
 
 // name will return a random name
 function randomName() {
-  var adjectives = ["adamant", "adroit", "amatory", "animistic", "antic",
-   "arcadian", "baleful", "bellicose", "bilious", "boorish", "calamitous", "caustic",
-   "cerulean", "comely", "concomitant", "contumacious", "corpulent", "crapulous",
-   "defamatory", "didactic", "dilatory", "dowdy", "efficacious", "effulgent",
-   "egregious", "endemic", "equanimous", "execrable", "fastidious", "feckless",
-   "fecund", "friable", "fulsome", "garrulous", "guileless", "gustatory",
-   "heuristic", "histrionic", "hubristic", "incendiary", "insidious", "insolent",
-   "intransigent", "inveterate", "invidious", "irksome", "jejune", "jocular",
-   "judicious", "lachrymose", "limpid", "loquacious", "luminous", "mannered",
-   "mendacious", "meretricious", "minatory", "mordant", "munificent", "nefarious",
-   "noxious", "obtuse", "parsimonious", "pendulous", "pernicious", "pervasive",
-   "petulant", "platitudinous", "precipitate", "propitious", "puckish",
-   "querulous", "quiescent", "rebarbative", "recalcitant", "redolent",
-   "rhadamanthine", "risible", "ruminative", "sagacious", "salubrious",
-   "sartorial", "sclerotic", "serpentine", "spasmodic", "strident", "taciturn",
-   "tenacious", "tremulous", "trenchant", "turbulent", "turgid", "ubiquitous",
-   "uxorious", "verdant", "voluble", "voracious", "wheedling", "withering",
-   "zealous"];
-
-  var nouns = ["ninja", "chair", "pancake", "statue", "unicorn", "rainbows",
-   "laser", "senor", "bunny", "captain", "nibblets", "cupcake", "carrot", "gnomes",
-   "glitter", "potato", "salad", "toejam", "curtains", "beets", "toilet",
-   "exorcism", "stick figures", "mermaid eggs", "sea barnacles", "dragons",
-   "jellybeans", "snakes", "dolls", "bushes", "cookies", "apples", "ice cream",
-   "ukulele", "kazoo", "banjo", "opera singer", "circus", "trampoline", "carousel",
-   "carnival", "locomotive", "hot air balloon", "praying mantis", "animator",
-   "artisan", "artist", "colorist", "inker", "coppersmith", "director", "designer",
-   "flatter", "stylist", "leadman", "limner", "make-up artist", "model", "musician",
-   "penciller", "producer", "scenographer", "set decorator", "silversmith",
-   "teacher", "auto mechanic", "beader", "bobbin boy", "clerk of the chapel",
-   "filling station attendant", "foreman", "maintenance engineering", "mechanic",
-   "miller", "moldmaker", "panel beater", "patternmaker", "plant operator",
-   "plumber", "sawfiler", "shop foreman", "soaper", "stationary engineer",
-   "wheelwright", "woodworkers"];
+  var names = [
+      "HedgeH0g2", "ButterQuest", "Skittle Mine", "Bad Bunny", "Willow Dragon",
+      "SmartieQuest", "Chip Queen", "Reed Lady", "DriftDetector", "White Snare",
+      "Night Magnet", "RoarSweetie", "Poppy Coffee", "Polar Bee", "Racy Lion",
+      "Light Lion", "Subzero", "Chasm Face", "Mint Ness", "DuckDuck",
+      "Mum Mary", "LifeRobber", "Killah Goose", "Daffy Girl", "EerieMizz",
+      "Acid Gosling", "Fennel Dove", "Jelly Camber", "Arsenic Coo", "Cool Iris",
+      "Alley Frog", "Gullyway", "Snow Cream", "Trash Sling", "SunVolt",
+      "NaturalGold", "SpellTansy", "Lava Nibbler", "TulipCake", "Devil Blade",
+      "Fire Fish", "Twin Blaze", "Back Bett", "Bug Fire", "NoiseFire",
+      "Koi Diva", "Widow Curio", "TrixiePhany", "Ember Rope", "Pink Hopper",
+      "BlacKitten", "Congo Wire", "Club Nola", "Devil Chick", "Reno Monarch",
+      "Fire Feline", "Flame OUT", "Nutmeg Riot", "RedMouth", "VenusLion",
+      "NemesisX", "BloodEater", "Lunar Treat", "Feral Mayhem", "Terror Master",
+      "Spunky Comet", "Green Ghost", "Metal Star", "Pearl Girl", "LunaStar",
+      "Star Sword", "Cupid Dust", "Winter Bite", "Sass Burst", "MicroStar",
+      "Fire Bite", "Mud Eye", "Starshine", "StormCake", "Twister Hero",
+      "Star Scratch", "RetroMirage", "DakotaBliss", "Blackfire", "GeneCuffs",
+      "CirrusFlash", "Paris Boost", "StarZen", "PepperBurst", "London Fox",
+      "Demo Zero", "Tokyo Dream", "Lucky Aurora", "Twisty Dew", "Dallas Burn",
+      "Bang Shift", "Nueva Nova", "Ginger Chaos", "Ship Whip", "CloudFrenzy",
+      "FireBerry", "Pink Stream", "Roma Kabuki", "Light Despair", "SunnySnap",
+      "Miss Nova", "Athens Fire", "Aqua Monsoon", "Virgo Moon", "Kawaii Red",
+      "Sun Leo", "X-Dew", "Cali Yacht", "Moon Radar", "Icy Avenger",
+      "Lilac Lizard", "Rosie Bird", "Dez North", "Jetta Talent", "Silver Rose",
+      "Moon Laser", "Gold Bentley", "Daisy Stick", "Pixie Taze", "Pocket Mazda",
+      "Domino Combat", "Wild Tesla", "Sky Dahlia", "FLAK Angel", "Gothic Gucci",
+      "Venom Petunia", "SWAT Honey", "Pepper Prada", "Lady Petal", "Dove Dolce",
+      "Dance Bloom", "Orange Teflon", "VersaceCat", "Lady Q", "Bambi Benz"
+  ]
 
   function rnd(list) {
     var i = Math.floor(Math.random() * list.length);
     return list[i];
   }
 
-  return rnd(adjectives)+' '+rnd(nouns)
+  return rnd(names)
 }
