@@ -16,7 +16,7 @@ var highscores = [
   { name: "Sarek",    id: "undef", score: 5 },
   { name: "Benjamin", id: "undef", score: 4 },
   { name: "Guinan",   id: "undef", score: 3 },
-  { name: "Wesley ",  id: "undef", score: 2 },
+  { name: "Wesley",   id: "undef", score: 2 },
   { name: "Pavel",    id: "undef", score: 1 }
 ]
 
