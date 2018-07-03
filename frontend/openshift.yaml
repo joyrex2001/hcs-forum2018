@@ -131,8 +131,8 @@ objects:
             env:
               - name: "SERVER_PORT"
                 value: "${SERVER_PORT}"
-              - name: "ENABLE_KAFKA"
-                value: "true"
+#              - name: "ENABLE_KAFKA"
+#                value: "true"
               - name: "KAFKA_HOST"
                 value: "${KAFKA_HOST}"
               - name: "KAFKA_TOPIC"

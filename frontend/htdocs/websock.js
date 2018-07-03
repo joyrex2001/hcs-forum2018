@@ -3,6 +3,8 @@
 var wsc = {
   socket: null,
   highscore: [],
+  ping: null,
+  timeout: 10000,
   // connection management
   connect: function() {
     var self = this;
@@ -22,13 +24,32 @@ var wsc = {
     } );
     this.socket.on( 'disconnect', function () {
       console.log( 'disconnected from server' );
-      window.setTimeout( 'app.connect()', 5000 );
+      window.setTimeout( 'app.connect()', self.timeout );
     } );
     this.socket.on( 'highscore', function (data) {
       self.highscore = data;
     } );
+    this.socket.on( 'ping', function (data) {
+      self.ping = Date.now();
+    } );
+    // start watchdog
+    this.ping = Date.now();
+    this.watchDog();
   },
-  // events
+  watchDog: function() {
+    var self = this;
+    if (!this.isConnected()) {
+      console.log( 'ping timeout' );
+      this.connect();
+    }
+    window.setTimeout( function() { self.watchDog() }, this.timeout+1000);
+  },
+  isConnected: function() {
+    return ( (Date.now()-this.ping) < this.timeout );
+  },
+  initGame: function(player) {
+    this.socket.emit('init', player);
+  },
   startGame: function(player) {
     this.socket.emit('start', player);
   },

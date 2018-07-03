@@ -33,7 +33,7 @@ window.onload = function() {
     game.state.start("PlayGame");
     try {
       wsc.connect();
-      wsc.startGame(player);
+      wsc.initGame(player);
     } catch(e) { console.log(e); }
 }
 
@@ -114,6 +114,7 @@ playGame.prototype = {
     dropCrate: function(){
         if(this.firstCrate){
             this.clearAttract();
+            wsc.startGame(player);
             this.firstCrate = false;
             this.timer = 0;
             this.timerEvent = game.time.events.loop(Phaser.Timer.SECOND, this.tick, this);

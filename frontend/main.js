@@ -56,7 +56,10 @@ function updateLocalHighscore(player,score) {
 
 // eventHandler will handle the events for registered player on given socket.
 function eventHandler(socket,producer) {
-  socket.emit('highscore',highscores)
+  socket.on('start',function(player, score) {
+    console.log(`new game player ${player.id}`)
+    sendKafka(producer, "newgame", player.id, player)
+  })
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.name} (${player.id})`)
     updateLocalHighscore(player,score)
@@ -79,17 +82,19 @@ function main() {
 
   // websocket handler
   io.on('connection',function(socket) {
-      socket.on('start',function(player){
+      socket.on('init',function(player){
         console.log(`connected player ${player.id}`)
-          socket.broadcast.emit('newplayer',player)
-          sendKafka(producer, "newplayer", player.id, player)
-          eventHandler(socket,producer,player)
-          socket.on('disconnect',function(){
-            console.log(`disconnected player ${player.id}`)
-              io.emit('remove',player)
-          })
+        sendKafka(producer, "connect", player.id, player)
+        socket.emit('highscore',highscores)
+        eventHandler(socket,producer,player)
+        socket.on('disconnect',function(){
+          console.log(`disconnected player ${player.id}`)
+          sendKafka(producer, "disconnect", player.id, player)
+          io.emit('remove',player)
+        })
       })
   })
+  setInterval(() => { io.emit("ping") }, 10000)
 
   // init kafka
   var client, producer, consumer
