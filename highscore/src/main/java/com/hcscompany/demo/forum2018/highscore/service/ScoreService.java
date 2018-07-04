@@ -13,6 +13,6 @@ public interface ScoreService {
     void update(ScoreModel model) throws IOException;
     void delete(String id) throws IOException;
 
-    List<ScoreModel> listUserScores(String pageId) throws IOException;
+    List<ScoreModel> listPlayerScores(String pageId) throws IOException;
     List<ScoreModel> listTopScores(Integer amount) throws IOException;
 }

@@ -34,9 +34,9 @@ public class ReadController {
         return new ResponseEntity<ScoreModel>(score.get(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/user/{id}/score")
+    @GetMapping(value = "/player/{id}/score")
     public ResponseEntity<List<ScoreModel>> getUserScores(@PathVariable(value = "id") String id) throws IOException {
-        List<ScoreModel> scores = service.listUserScores(id);
+        List<ScoreModel> scores = service.listPlayerScores(id);
         return new ResponseEntity<List<ScoreModel>>(scores, HttpStatus.OK);
     }
 

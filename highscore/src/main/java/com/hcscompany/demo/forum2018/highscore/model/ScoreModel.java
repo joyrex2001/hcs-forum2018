@@ -17,8 +17,8 @@ import org.hibernate.annotations.Type;
 @Entity
 @Table(name = "score",
     indexes = {
-        @Index(name = "idx_userId",
-            columnList = "userId"
+        @Index(name = "idx_playerId",
+            columnList = "playerId"
         ),
         @Index(name = "idx_score",
             columnList = "score"
@@ -44,7 +44,7 @@ public class ScoreModel implements Serializable {
     private Calendar creationDate;
 
     @Column(length=36)
-    private String userId;
+    private String playerId;
 
     @Column(length=16)
     private String name;
@@ -57,8 +57,8 @@ public class ScoreModel implements Serializable {
         return id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getPlayerId() {
+        return playerId;
     }
 
     public String getName() {
@@ -85,8 +85,8 @@ public class ScoreModel implements Serializable {
         this.id = id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setPlayerId(String playerId) {
+        this.playerId = playerId;
     }
 
     public void setName(String name) {

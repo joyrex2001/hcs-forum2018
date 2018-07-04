@@ -45,8 +45,8 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     @Override
-    public List<ScoreModel> listUserScores(String userId) {
-        return repository.findByUserId(userId);
+    public List<ScoreModel> listPlayerScores(String playerId) {
+        return repository.findByPlayerId(playerId);
     }
 
     @Override
