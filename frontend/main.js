@@ -8,16 +8,16 @@ var express  = require('express'),
 // variable is updated by the kafka consumer whenever a new highscores message
 // is received.
 var highscores = [
-  { name: "Geordi",   id: "undef", score: 10},
-  { name: "Tuvok",    id: "undef", score: 9 },
-  { name: "Jadzia",   id: "undef", score: 8 },
-  { name: "Leonard",  id: "undef", score: 7 },
-  { name: "Tasha",    id: "undef", score: 6 },
-  { name: "Sarek",    id: "undef", score: 5 },
-  { name: "Benjamin", id: "undef", score: 4 },
-  { name: "Guinan",   id: "undef", score: 3 },
-  { name: "Wesley",   id: "undef", score: 2 },
-  { name: "Pavel",    id: "undef", score: 1 }
+  { name: "Geordi",   playerId: "undef", score: 10},
+  { name: "Tuvok",    playerId: "undef", score: 9 },
+  { name: "Jadzia",   playerId: "undef", score: 8 },
+  { name: "Leonard",  playerId: "undef", score: 7 },
+  { name: "Tasha",    playerId: "undef", score: 6 },
+  { name: "Sarek",    playerId: "undef", score: 5 },
+  { name: "Benjamin", playerId: "undef", score: 4 },
+  { name: "Guinan",   playerId: "undef", score: 3 },
+  { name: "Wesley",   playerId: "undef", score: 2 },
+  { name: "Pavel",    playerId: "undef", score: 1 }
 ]
 
 // healthz will return an ok for monitoring purposes
@@ -46,7 +46,7 @@ function updateLocalHighscore(player,score) {
     var added = false
     highscores.forEach(function(d) {
       if (d.score < score && !added) {
-        newHighscores.push({ score: score, id: player.id, name: player.name })
+        newHighscores.push({ score: score, playerId: player.id, name: player.name })
         added = true
       }
       newHighscores.push(d)
