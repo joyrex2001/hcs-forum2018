@@ -5,3 +5,10 @@ node_modules
 .npm
 .npm-global
 .config
+*.jar
+*.war
+*.iml
+.idea
+target/
+out/
+.idea

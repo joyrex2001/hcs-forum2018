@@ -26,6 +26,20 @@ services:
       - front-tier
       - back-tier
 
+  postgress:
+    image: postgres
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: highscore
+      POSTGRES_USER: highscore
+      POSTGRES_PASSWORD: c-krit
+    ports:
+      - "5432:5432"
+    networks:
+      - front-tier
+      - back-tier
+
 networks:
   front-tier:
   back-tier:
