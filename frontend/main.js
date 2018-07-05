@@ -102,9 +102,9 @@ function main() {
   // init kafka
   var client, producer, consumer
   if (config.enable_kafka) {
-    client = new kafka.Client(config.kafka_host+":"+config.zookeeper_port)
+    client = new kafka.Client(config.kafka_servers)
     producer = new kafka.Producer(client)
-    consumer = new kafka.Consumer( client,
+    consumer = new kafka.Consumer(client,
                                       [{ topic: "highscore" }],
                                       { autoCommit: true,
                                         fetchMaxWaitMs: 1000,
