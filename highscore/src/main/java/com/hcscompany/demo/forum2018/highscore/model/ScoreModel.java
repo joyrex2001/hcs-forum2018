@@ -12,7 +12,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
-import org.hibernate.annotations.Type;
+import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "score",
@@ -46,9 +46,11 @@ public class ScoreModel implements Serializable {
     @Column(length=36)
     private String playerId;
 
+    @Expose
     @Column(length=16)
     private String name;
 
+    @Expose
     @Column
     private Integer score;
 

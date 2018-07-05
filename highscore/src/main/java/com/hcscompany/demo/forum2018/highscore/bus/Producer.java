@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,8 @@ public class Producer {
 
     public void emitHighScores()  throws IOException {
         List<ScoreModel> scores = service.listTopScores(10);
-        send("highscore", new Gson().toJson(scores));
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        send("highscore", gson.toJson(scores));
     }
 
 }

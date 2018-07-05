@@ -11,16 +11,16 @@ require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
 // variable is updated by the kafka consumer whenever a new highscores message
 // is received.
 var highscores = [
-  { name: "Geordi",   playerId: "undef", score: 10},
-  { name: "Tuvok",    playerId: "undef", score: 9 },
-  { name: "Jadzia",   playerId: "undef", score: 8 },
-  { name: "Leonard",  playerId: "undef", score: 7 },
-  { name: "Tasha",    playerId: "undef", score: 6 },
-  { name: "Sarek",    playerId: "undef", score: 5 },
-  { name: "Benjamin", playerId: "undef", score: 4 },
-  { name: "Guinan",   playerId: "undef", score: 3 },
-  { name: "Wesley",   playerId: "undef", score: 2 },
-  { name: "Pavel",    playerId: "undef", score: 1 }
+  { name: "Geordi",   score: 10},
+  { name: "Tuvok",    score: 9 },
+  { name: "Jadzia",   pscore: 8 },
+  { name: "Leonard",  score: 7 },
+  { name: "Tasha",    score: 6 },
+  { name: "Sarek",    score: 5 },
+  { name: "Benjamin", score: 4 },
+  { name: "Guinan",   score: 3 },
+  { name: "Wesley",   score: 2 },
+  { name: "Pavel",    score: 1 }
 ]
 
 // healthz will return an ok for monitoring purposes
@@ -49,7 +49,7 @@ function updateLocalHighscore(player,score) {
     var added = false
     highscores.forEach(function(d) {
       if (d.score < score && !added) {
-        newHighscores.push({ score: score, playerId: player.id, name: player.name })
+        newHighscores.push({ score: score, name: player.name })
         added = true
       }
       newHighscores.push(d)
@@ -102,7 +102,7 @@ function main() {
   // init kafka
   var client, producer, consumer
   if (config.enable_kafka) {
-    client = new kafka.Client(config.kafka_servers)
+    client = new kafka.KafkaClient({ kafkaHost: config.kafka_servers} )
     producer = new kafka.Producer(client)
     consumer = new kafka.Consumer(client,
                                       [{ topic: "highscore" }],
