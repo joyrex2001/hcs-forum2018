@@ -1,7 +1,5 @@
 package com.hcscompany.demo.forum2018.highscore.bus;
 
-import java.util.concurrent.CountDownLatch;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
