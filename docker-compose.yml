@@ -8,6 +8,7 @@ services:
     environment:
       SERVER_PORT: "8080"
       KAFKA_SERVERS: "kafka:9092"
+      HIGHSCORE_SERVICE: "http://highscore:9090"
     ports:
      - "8080:8080"
     networks:
@@ -38,12 +39,14 @@ services:
 
   kafka:
     image: wurstmeister/kafka:latest
-    ports:
-      - "9092:9092"
+    volumes:
+      - ./.data/kafka:/kafka
     environment:
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_BROKER_ID: 999
+    ports:
+      - "9092:9092"
     networks:
       - back-tier
 

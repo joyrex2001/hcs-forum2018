@@ -21,15 +21,15 @@ parameters:
   displayName: Server Port
   value: '8080'
 
-- name: KAFKA_HOST
-  description: Host name of the Kafka service
-  displayName: Kafka Host
-  value: "apache-kafka"
+- name: HIGHSCORE_SERVICE
+  description: Service host of the highscore rest service
+  displayName: Highscore service
+  value: ""
 
-- name: ZOOKEEPER_PORT
-  description: Port of the Zookeeper service running on the Kafka service
-  displayName: ZooKeeper port
-  value: "2181"
+- name: KAFKA_SERVERS
+  description: Hostnames of the Kafka servers to bootstrap
+  displayName: Kafka bootstrap servers
+  value: "kafka"
 
 - name: MEMORY_LIMIT
   description: Maximum amount of memory the container can use.

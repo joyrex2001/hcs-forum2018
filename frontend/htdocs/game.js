@@ -239,28 +239,6 @@ playGame.prototype = {
           alpha: 0
       }, 150, Phaser.Easing.Cubic.InOut, true, 0, -1, true);
     },
-    showInfo: function(){
-      this.menuGroup.destroy();
-      this.menuGroup = game.add.group();
-      var infoTxt =
-      "Stack The Containers\n\n"+
-      "Dit spel is gemaakt door HCS Company.\n"+
-      "Wij geloven in de kunst van de eenvoud.\n"+
-      "Het is onze visie dat eenvoud het middel\n"+
-      "is te transformeren naar een digitale\n"+
-      "organisatie. Of het nu gaat om de inrichting\n"+
-      "van IT of de manier waarop we samenwerken,\n"+
-      "we hebben het met elkaar de afgelopen decennia\n"+
-      "nodeloos complex gemaakt. Door de gecreëerde\n"+
-      "samenhang, generalisatie en over-organisatie\n"+
-      "missen we de benodigde snelheid en wendbaarheid\n"+
-      "om ons continu optimaal af te stemmen op de\n"+
-      "veranderingen om ons heen. HCS Company brengt\n"+
-      "eenvoud in automatisering..\n";
-      var text = this.game.add.bitmapText(game.width / 2, 100, "font", infoTxt, 24);
-      text.anchor.set(0.5, 0);
-      this.menuGroup.add(text);
-    },
     showTopscores: function(){
       this.menuGroup.destroy();
       this.menuGroup = game.add.group();
@@ -278,9 +256,8 @@ playGame.prototype = {
         switch(this.attractView) {
           case 0: this.showTitle(); break;
           case 1: this.showTopscores(); break;
-          case 2: this.showInfo(); break;
         }
-        this.attractView = (this.attractView+1)%2; // skip info
+        this.attractView = (this.attractView+1)%2;
         this.attractEvent = game.time.events.add(Phaser.Timer.SECOND * 5, this.attractMode, this);
     },
     clearAttract: function() {
@@ -293,7 +270,7 @@ playGame.prototype = {
         var isFamous = highscores.find(function(s) {
           return curScore > s.score;
         });
-        if (isFamous) this.askName();
+        if (isFamous || highscores.length<10) this.askName();
         try { wsc.sendScore(player, this.score); } catch(e) { console.log(e); }
         player.highscore = Math.max(this.score, player.highscore)
         player.Update()

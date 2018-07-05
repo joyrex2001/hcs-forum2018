@@ -2,6 +2,7 @@ var express  = require('express'),
     morgan   = require('morgan'),
     socketio = require('socket.io'),
     http     = require('http'),
+    axios    = require('axios'),
     kafka    = require('kafka-node'),
     config   = require('./config')
 
@@ -29,9 +30,42 @@ function healthz(req, res) {
   return
 }
 
+// getHighscores will retreive the current highscores from the configured
+// highscore service.
+function getHighscores() {
+  if (!config.highscore_service) {
+    console.log("not loading highscores, highscore_service not configured...")
+    return
+  }
+  axios.get(config.highscore_service+'/highscore')
+    .then(response => {
+      console.log("loaded highscores...")
+      highscores = response.data
+    })
+    .catch(error => {
+      console.log(error)
+    })
+}
+
+// sendScore will push the current score to the highscore service.
+function sendScore(score) {
+  if (!config.highscore_service) {
+    console.log("not sending score, highscore_service not configured...")
+    return
+  }
+  axios.put( config.highscore_service+'/score',
+      score, { headers: {"Content-Type": "application/json"} } )
+    .then(() => {
+      console.log(`send score ${score.score} for ${score.playerId} as ${score.name}`)
+    })
+    .catch(error => {
+      console.log(error)
+    })
+}
+
 // sendKafka will send a message with given id and data to given topic using
 // given producer.
-function sendKafka(producer, topic, id, data) {
+function sendKafka(producer, topic, data) {
   if (!config.enable_kafka) {
     console.log(`ignoring sendKafka(${topic},${id},${data})`)
     return
@@ -61,18 +95,22 @@ function updateLocalHighscore(player,score) {
 function eventHandler(io,socket,producer) {
   socket.on('start',function(player, score) {
     console.log(`new game player ${player.id}`)
-    sendKafka(producer, "newgame", player.id, player)
+    sendKafka(producer, "newgame", player)
   })
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.name} (${player.id})`)
-    updateLocalHighscore(player,score)
-    sendKafka(producer, "score", player.id, score)
+    updateLocalHighscore(player, score)
+    sendKafka(producer, "score", score)
+    sendScore({score: score, playerId: player.id, name: player.name})
     if (!config.enable_kafka) io.emit('highscore',highscores)
   })
 }
 
 // main will open the door to the bat-mobile and shouts "let's go!".
 function main() {
+  // load current highscores
+  getHighscores()
+
   // init http
   var app = express()
   app.use(express.json())
@@ -88,12 +126,12 @@ function main() {
   io.on('connection',function(socket) {
     socket.on('init',function(player){
       console.log(`connected player ${player.id}`)
-      sendKafka(producer, "connect", player.id, player)
+      sendKafka(producer, "connect", player)
       socket.emit('highscore',highscores)
       eventHandler(io,socket,producer,player)
       socket.on('disconnect',function(){
         console.log(`disconnected player ${player.id}`)
-        sendKafka(producer, "disconnect", player.id, player)
+        sendKafka(producer, "disconnect", player)
       })
     })
   })
@@ -102,7 +140,7 @@ function main() {
   // init kafka
   var client, producer, consumer
   if (config.enable_kafka) {
-    client = new kafka.KafkaClient({ kafkaHost: config.kafka_servers} )
+    client = new kafka.KafkaClient({kafkaHost: config.kafka_servers})
     producer = new kafka.Producer(client)
     consumer = new kafka.Consumer(client,
                                       [{ topic: "highscore" }],
@@ -114,7 +152,9 @@ function main() {
 
     consumer.on("message", function(message) {
       var buf = new Buffer(message.value, "binary")
-      highscores = JSON.parse(buf.toString())
+      var jsn = buf.toString()
+      console.log(`received ${jsn}`)
+      highscores = JSON.parse(jsn)
       io.emit('highscore',highscores)
     })
     consumer.on('error', function(err) {
