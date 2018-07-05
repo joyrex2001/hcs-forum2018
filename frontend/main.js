@@ -13,7 +13,7 @@ require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
 var highscores = [
   { name: "Geordi",   score: 10},
   { name: "Tuvok",    score: 9 },
-  { name: "Jadzia",   pscore: 8 },
+  { name: "Jadzia",   score: 8 },
   { name: "Leonard",  score: 7 },
   { name: "Tasha",    score: 6 },
   { name: "Sarek",    score: 5 },

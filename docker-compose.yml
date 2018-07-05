@@ -34,7 +34,6 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - front-tier
       - back-tier
 
   kafka:
@@ -46,7 +45,6 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_BROKER_ID: 999
     networks:
-      - front-tier
       - back-tier
 
   postgres:
@@ -60,7 +58,6 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - front-tier
       - back-tier
 
 networks:
