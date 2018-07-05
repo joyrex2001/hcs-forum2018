@@ -1,8 +1,11 @@
 var express  = require('express'),
+    morgan   = require('morgan'),
     socketio = require('socket.io'),
     http     = require('http'),
     kafka    = require('kafka-node'),
     config   = require('./config')
+
+require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
 
 // highscores is a global variable that contains the latest highscores. This
 // variable is updated by the kafka consumer whenever a new highscores message
@@ -34,7 +37,7 @@ function sendKafka(producer, topic, id, data) {
     return
   }
   let payloads = [ { topic: topic, messages: '*', partition: 0 } ]
-  payloads[0].messages = new kafka.KeyedMessage(id, JSON.stringify(data))
+  payloads[0].messages = JSON.stringify(data)
   producer.send(payloads, function (err) {
     if (err) { console.error(err) }
   })
@@ -73,6 +76,7 @@ function main() {
   // init http
   var app = express()
   app.use(express.json())
+  app.use(morgan('[:date[iso]] [REQ]   :method :url :status :res[content-length] - :remote-addr - :response-time ms'));
   app.use('/', express.static('htdocs'))
   app.get('/healthz', healthz)
 
@@ -82,17 +86,16 @@ function main() {
 
   // websocket handler
   io.on('connection',function(socket) {
-      socket.on('init',function(player){
-        console.log(`connected player ${player.id}`)
-        sendKafka(producer, "connect", player.id, player)
-        socket.emit('highscore',highscores)
-        eventHandler(io,socket,producer,player)
-        socket.on('disconnect',function(){
-          console.log(`disconnected player ${player.id}`)
-          sendKafka(producer, "disconnect", player.id, player)
-          io.emit('remove',player)
-        })
+    socket.on('init',function(player){
+      console.log(`connected player ${player.id}`)
+      sendKafka(producer, "connect", player.id, player)
+      socket.emit('highscore',highscores)
+      eventHandler(io,socket,producer,player)
+      socket.on('disconnect',function(){
+        console.log(`disconnected player ${player.id}`)
+        sendKafka(producer, "disconnect", player.id, player)
       })
+    })
   })
   setInterval(() => { io.emit("ping") }, 10000)
 
@@ -101,13 +104,13 @@ function main() {
   if (config.enable_kafka) {
     client = new kafka.Client(config.kafka_host+":"+config.zookeeper_port)
     producer = new kafka.Producer(client)
-    consumer = new kafka.HighLevelConsumer( client,
-                                            [{ topic: "highscore" }],
-                                            { autoCommit: true,
-                                              fetchMaxWaitMs: 1000,
-                                              fetchMaxBytes: 1024 * 1024,
-                                              encoding: "buffer"
-                                            } )
+    consumer = new kafka.Consumer( client,
+                                      [{ topic: "highscore" }],
+                                      { autoCommit: true,
+                                        fetchMaxWaitMs: 1000,
+                                        fetchMaxBytes: 1024 * 1024,
+                                        encoding: "buffer"
+                                      } )
 
     consumer.on("message", function(message) {
       var buf = new Buffer(message.value, "binary")
