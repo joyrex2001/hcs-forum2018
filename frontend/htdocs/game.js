@@ -27,14 +27,12 @@ window.onload = function() {
         }
     }
     player = new Player();
+    wsc.player = player;
     player.Update();
     game = new Phaser.Game(gameOptions.gameWidth, gameOptions.gameHeight, Phaser.CANVAS);
     game.state.add("PlayGame", playGame);
     game.state.start("PlayGame");
-    try {
-      wsc.connect();
-      wsc.initGame(player);
-    } catch(e) { console.log(e); }
+    try { wsc.connect(); } catch(e) { console.log(e); }
 }
 
 var playGame = function(){};

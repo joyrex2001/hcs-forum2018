@@ -33,11 +33,11 @@ function healthz(req, res) {
 // getHighscores will retreive the current highscores from the configured
 // highscore service.
 function getHighscores() {
-  if (!config.highscore_service) {
+  if (!config.enable_highscore) {
     console.log("not loading highscores, highscore_service not configured...")
     return
   }
-  axios.get(config.highscore_service+'/highscore')
+  axios.get(config.highscore_service+'/highscore', { timeout: 1000 })
     .then(response => {
       console.log("loaded highscores...")
       highscores = response.data
@@ -49,12 +49,12 @@ function getHighscores() {
 
 // sendScore will push the current score to the highscore service.
 function sendScore(score) {
-  if (!config.highscore_service) {
+  if (!config.enable_highscore) {
     console.log("not sending score, highscore_service not configured...")
     return
   }
   axios.put( config.highscore_service+'/score',
-      score, { headers: {"Content-Type": "application/json"} } )
+      score, {headers: {"Content-Type": "application/json"}, timeout: 1000 })
     .then(() => {
       console.log(`send score ${score.score} for ${score.playerId} as ${score.name}`)
     })

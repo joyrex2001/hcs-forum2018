@@ -5,6 +5,7 @@ var wsc = {
   highscore: [],
   ping: null,
   timeout: 10000,
+  player: null,
   // connection management
   connect: function() {
     var self = this;
@@ -21,6 +22,7 @@ var wsc = {
     } );
     this.socket.on( 'connect', function () {
       console.log( 'connected to server' );
+      self.socket.emit('init', self.player);
     } );
     this.socket.on( 'disconnect', function () {
       console.log( 'disconnected from server' );
@@ -46,9 +48,6 @@ var wsc = {
   },
   isConnected: function() {
     return ( (Date.now()-this.ping) < this.timeout );
-  },
-  initGame: function(player) {
-    this.socket.emit('init', player);
   },
   startGame: function(player) {
     this.socket.emit('start', player);
