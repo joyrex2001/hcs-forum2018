@@ -3,7 +3,7 @@ var express  = require('express'),
     socketio = require('socket.io'),
     http     = require('http'),
     axios    = require('axios'),
-    kafka    = require('kafka-node'),
+    kafka    = require('./kafka'),
     config   = require('./config')
 
 require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
@@ -64,17 +64,13 @@ function sendScore(score) {
 }
 
 // sendKafka will send a message with given id and data to given topic using
-// given producer.
-function sendKafka(producer, topic, data) {
+// given kafka client.
+function sendKafka(bus, topic, data) {
   if (!config.enable_kafka) {
     console.log(`ignoring sendKafka(${topic},${id},${data})`)
     return
   }
-  let payloads = [ { topic: topic, messages: '*', partition: 0 } ]
-  payloads[0].messages = JSON.stringify(data)
-  producer.send(payloads, function (err) {
-    if (err) { console.error(err) }
-  })
+  bus.Send(topic, data)
 }
 
 // updateLocalHighscore will update the local highscore table.
@@ -92,15 +88,15 @@ function updateLocalHighscore(player,score) {
 }
 
 // eventHandler will handle the events for registered player on given socket.
-function eventHandler(io,socket,producer) {
+function eventHandler(io,socket,bus) {
   socket.on('start',function(player, score) {
     console.log(`new game player ${player.id}`)
-    sendKafka(producer, "newgame", player)
+    sendKafka(bus, "newgame", player)
   })
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
-    sendKafka(producer, "score", score)
+    sendKafka(bus, "score", score)
     sendScore({score: score, playerId: player.id, name: player.name})
     if (!config.enable_kafka) io.emit('highscore',highscores)
   })
@@ -110,6 +106,19 @@ function eventHandler(io,socket,producer) {
 function main() {
   // load current highscores
   getHighscores()
+
+  // init kafka
+  var bus
+  if (config.enable_kafka) {
+    bus = new kafka.Client(config.kafka_servers, { Reconnect: 2000 })
+    bus.Consume("highscore", function(message) {
+      var buf = new Buffer(message.value, "binary")
+      var jsn = buf.toString()
+      console.log(`received ${jsn}`)
+      highscores = JSON.parse(jsn)
+      io.emit('highscore',highscores)
+    })
+  }
 
   // init http
   var app = express()
@@ -124,46 +133,18 @@ function main() {
 
   // websocket handler
   io.on('connection',function(socket) {
-    socket.on('init',function(player){
+    socket.on('init',function(player) {
       console.log(`connected player ${player.id}`)
-      sendKafka(producer, "connect", player)
+      sendKafka(bus, "connect", player)
       socket.emit('highscore',highscores)
-      eventHandler(io,socket,producer,player)
+      eventHandler(io,socket,bus,player)
       socket.on('disconnect',function(){
         console.log(`disconnected player ${player.id}`)
-        sendKafka(producer, "disconnect", player)
+        sendKafka(bus, "disconnect", player)
       })
     })
   })
   setInterval(() => { io.emit("ping") }, 10000)
-
-  // init kafka
-  var client, producer, consumer
-  if (config.enable_kafka) {
-    client = new kafka.KafkaClient({kafkaHost: config.kafka_servers})
-    producer = new kafka.Producer(client)
-    consumer = new kafka.Consumer(client,
-                                      [{ topic: "highscore" }],
-                                      { autoCommit: true,
-                                        fetchMaxWaitMs: 1000,
-                                        fetchMaxBytes: 1024 * 1024,
-                                        encoding: "buffer"
-                                      } )
-
-    consumer.on("message", function(message) {
-      var buf = new Buffer(message.value, "binary")
-      var jsn = buf.toString()
-      console.log(`received ${jsn}`)
-      highscores = JSON.parse(jsn)
-      io.emit('highscore',highscores)
-    })
-    consumer.on('error', function(err) {
-      console.log('error', err)
-    })
-    process.on('SIGINT', function() {
-      consumer.close(true, function() { process.exit() })
-    })
-  }
 
   // go for it...
   console.log(`Starting webserver on port ${config.server_port}`)
