@@ -39,7 +39,7 @@ function getHighscores() {
   }
   axios.get(config.highscore_service+'/highscore', { timeout: 1000 })
     .then(response => {
-      console.log("loaded highscores...")
+      console.log(`retreived highscores from ${config.highscore_service}`)
       highscores = response.data
     })
     .catch(error => {
@@ -56,7 +56,7 @@ function sendScore(score) {
   axios.put( config.highscore_service+'/score',
       score, {headers: {"Content-Type": "application/json"}, timeout: 1000 })
     .then(() => {
-      console.log(`send score ${score.score} for ${score.playerId} as ${score.name}`)
+      console.log(`sent score ${score.score} for ${score.playerId} as ${score.name} to ${config.highscore_service}`)
     })
     .catch(error => {
       console.log(error)
@@ -98,7 +98,7 @@ function eventHandler(io,socket,producer) {
     sendKafka(producer, "newgame", player)
   })
   socket.on('gameover',function(player, score) {
-    console.log(`add score ${score} for ${player.name} (${player.id})`)
+    console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
     sendKafka(producer, "score", score)
     sendScore({score: score, playerId: player.id, name: player.name})
