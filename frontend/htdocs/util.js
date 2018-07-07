@@ -30,7 +30,7 @@ function randomName() {
       "SmartieQuest", "Chip Queen", "Reed Lady", "DriftDetector", "White Snare",
       "Night Magnet", "RoarSweetie", "Poppy Coffee", "Polar Bee", "Racy Lion",
       "Light Lion", "Subzero", "Chasm Face", "Mint Ness", "DuckDuck",
-      "Mum Mary", "LifeRobber", "Killah Goose", "Daffy Girl", "EerieMizz",
+      "Mum Mary", "Killah Goose", "Daffy Girl", "EerieMizz", "Feral Mayhem",
       "Acid Gosling", "Fennel Dove", "Jelly Camber", "Arsenic Coo", "Cool Iris",
       "Alley Frog", "Gullyway", "Snow Cream", "Trash Sling", "SunVolt",
       "NaturalGold", "SpellTansy", "Lava Nibbler", "TulipCake", "Devil Blade",
@@ -38,7 +38,6 @@ function randomName() {
       "Koi Diva", "Widow Curio", "TrixiePhany", "Ember Rope", "Pink Hopper",
       "BlacKitten", "Congo Wire", "Club Nola", "Devil Chick", "Reno Monarch",
       "Fire Feline", "Flame OUT", "Nutmeg Riot", "RedMouth", "VenusLion",
-      "NemesisX", "BloodEater", "Lunar Treat", "Feral Mayhem", "Terror Master",
       "Spunky Comet", "Green Ghost", "Metal Star", "Pearl Girl", "LunaStar",
       "Star Sword", "Cupid Dust", "Winter Bite", "Sass Burst", "MicroStar",
       "Fire Bite", "Mud Eye", "Starshine", "StormCake", "Twister Hero",
@@ -53,7 +52,8 @@ function randomName() {
       "Moon Laser", "Gold Bentley", "Daisy Stick", "Pixie Taze", "Pocket Mazda",
       "Domino Combat", "Wild Tesla", "Sky Dahlia", "FLAK Angel", "Gothic Gucci",
       "Venom Petunia", "SWAT Honey", "Pepper Prada", "Lady Petal", "Dove Dolce",
-      "Dance Bloom", "Orange Teflon", "VersaceCat", "Lady Q", "Bambi Benz"
+      "Dance Bloom", "Orange Teflon", "VersaceCat", "Lady Q", "Bambi Benz",
+      "NemesisX", "Lunar Treat"
   ]
 
   function rnd(list) {
