@@ -1,8 +1,10 @@
 ---
 apiVersion: v1
 kind: Template
-labels:
-  template: frontend
+metadata:
+  name: frontend
+  labels:
+    template: frontend
 parameters:
 - name: NAME
   description: The name assigned to all of the frontend objects defined in this template.
@@ -29,7 +31,7 @@ parameters:
 - name: KAFKA_SERVERS
   description: Hostnames of the Kafka servers to bootstrap
   displayName: Kafka bootstrap servers
-  value: "kafka"
+  value: ""
 
 - name: MEMORY_LIMIT
   description: Maximum amount of memory the container can use.
@@ -131,14 +133,10 @@ objects:
             env:
               - name: "SERVER_PORT"
                 value: "${SERVER_PORT}"
-#              - name: "ENABLE_KAFKA"
-#                value: "true"
-              - name: "KAFKA_HOST"
-                value: "${KAFKA_HOST}"
-              - name: "KAFKA_TOPIC"
-                value: "${KAFKA_TOPIC}"
-              - name: "ZOOKEEPER_PORT"
-                value: "${ZOOKEEPER_PORT}"
+              - name: "KAFKA_SERVERS"
+                value: "${KAFKA_SERVERS}"
+              - name: "HIGHSCORE_SERVICE"
+                value: "${HIGHSCORE_SERVICE}"
             ports:
             - containerPort: 8080
             readinessProbe:

@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +16,12 @@ import com.hcscompany.demo.forum2018.highscore.service.ScoreService;
 import com.hcscompany.demo.forum2018.highscore.model.ScoreModel;
 
 @Component
-public class Producer {
+public class Sender {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Producer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sender.class);
+
+    @Value("${kafka.topic.highscore}")
+    private String highscoreTopic;
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -33,7 +37,7 @@ public class Producer {
     public void emitHighScores()  throws IOException {
         List<ScoreModel> scores = service.listTopScores(10);
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        send("highscore", gson.toJson(scores));
+        send(highscoreTopic, gson.toJson(scores));
     }
 
 }

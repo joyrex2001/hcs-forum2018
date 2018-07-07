@@ -96,7 +96,7 @@ function eventHandler(io,socket,bus) {
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
-    sendKafka(bus, "score", score)
+    sendKafka(bus, "score", {score: score, playerId: player.id, name: player.name})
     sendScore({score: score, playerId: player.id, name: player.name})
     if (!config.enable_kafka) io.emit('highscore',highscores)
   })

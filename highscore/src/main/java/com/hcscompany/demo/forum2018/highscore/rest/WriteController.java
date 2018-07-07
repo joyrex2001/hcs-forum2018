@@ -13,7 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.hcscompany.demo.forum2018.highscore.model.ScoreModel;
 import com.hcscompany.demo.forum2018.highscore.service.ScoreService;
-import com.hcscompany.demo.forum2018.highscore.bus.Producer;
+import com.hcscompany.demo.forum2018.highscore.bus.Sender;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,19 +28,19 @@ public class WriteController {
     private ScoreService service;
 
     @Autowired
-    private Producer producer;
+    private Sender sender;
 
     @PostMapping(value = "/score")
     public ResponseEntity<ScoreModel> postScore(@RequestBody ScoreModel score) throws IOException {
         service.update(score);
-        producer.emitHighScores();
+        sender.emitHighScores();
         return new ResponseEntity<ScoreModel>(score, HttpStatus.OK);
     }
 
     @PutMapping(value = "/score")
     public ResponseEntity<ScoreModel> putScore(@RequestBody ScoreModel score) throws IOException {
         service.put(score);
-        producer.emitHighScores();
+        sender.emitHighScores();
         return new ResponseEntity<ScoreModel>(score, HttpStatus.OK);
     }
 
@@ -52,7 +52,7 @@ public class WriteController {
             LOGGER.info("not deleting score record with id {}, record does not exist", id);
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         };
-        producer.emitHighScores();
+        sender.emitHighScores();
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 

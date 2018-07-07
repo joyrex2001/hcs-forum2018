@@ -84,7 +84,6 @@ Client.prototype.Connect = function (host) {
     self.producer.close()
     reconnect()
   })
-
 }
 
 // Send will send given message to the kafka topic.
