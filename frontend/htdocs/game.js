@@ -248,7 +248,11 @@ playGame.prototype = {
       var text = this.game.add.bitmapText(game.width / 2, 100, "font", scoreTxt, 50);
       text.align = 'center'
       text.anchor.set(0.5, 0);
-      this.menuGroup.add(text);
+      this.menuGroup.add(text)
+      var credits = this.game.add.bitmapText(game.width / 2, game.height - 20, "smallfont", "Based on Stack The Crates by Emanuele Feronato", 16);
+      credits.align = 'center'
+      credits.anchor.set(0.5, 0);
+      this.menuGroup.add(credits)
     },
     attractMode: function() {
         switch(this.attractView) {
