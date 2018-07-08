@@ -12,7 +12,8 @@ function Client(host, options)  {
   this.consumers = new Map()
 }
 
-// Consume will add a consumer (function handler) for given topic.
+// Consume will add a consumer (function handler) for given topic. The offset
+// will be positioned to the last message that has been published on the queue.
 Client.prototype.Consume = function(topic, handler) {
   var self = this
 
@@ -24,6 +25,20 @@ Client.prototype.Consume = function(topic, handler) {
                                       fetchMaxBytes: 1024 * 1024,
                                       encoding: "buffer"
                                     } )
+
+  var offset = new kafka.Offset(client)
+  offset.fetchLatestOffsets([topic], (error, offsets) => {
+    if (error) {
+        console.log(`error fetching latest offsets ${error}`)
+        return
+    }
+    var latest = 1
+    Object.keys(offsets[topic]).forEach( o => {
+        latest = offsets[topic][o] > latest ? offsets[topic][o] : latest
+    })
+    consumer.setOffset(topic, 0, latest-1)
+  })
+
   console.log(`consuming ${topic} from kafka ${this.host}`)
 
   function reconnect() {
@@ -54,7 +69,7 @@ Client.prototype.Connect = function (host) {
 
   console.log(`connecting to kafka ${this.host}`)
   this.client = new kafka.KafkaClient({kafkaHost: this.host})
-  this.producer = new kafka.Producer(this.client)
+  this.producer = new kafka.HighLevelProducer(this.client)
   this.connected = true
   this.reconnect = null
 
@@ -89,12 +104,15 @@ Client.prototype.Connect = function (host) {
 // Send will send given message to the kafka topic.
 Client.prototype.Send = function (topic, data) {
   if (!this.connected) this.Connect()
-  let payloads = [ { topic: topic, messages: '*', partition: 0 } ]
-  payloads[0].messages = JSON.stringify(data)
-  console.log(`send ${payloads[0].messages} to topic ${topic}`)
-  this.producer.send(payloads, err => {
-    if (err) { console.error(err) }
-  })
+  var message = JSON.stringify(data)
+  console.log(`send ${message} to topic ${topic}`)
+  this.producer.send([{ topic: topic, messages: message }],
+                        err => { if (err) { console.error(err) } })
+}
+
+// Close will close open producer connections.
+Client.prototype.Close = function() {
+    self.producer.close()
 }
 
 // TODO: maybe also send keyed messages? ;-)
