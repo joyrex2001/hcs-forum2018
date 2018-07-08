@@ -3,6 +3,7 @@ package com.hcscompany.demo.forum2018.highscore.bus;
 import java.io.IOException;
 
 import com.google.gson.Gson;
+import io.micrometer.core.instrument.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class Receiver {
     public void receive(ScoreModel score) throws IOException {
         LOGGER.info("received payload='{}'", new Gson().toJson(score));
         service.put(score);
+        Metrics.counter("bus.put_score").increment();
         sender.emitHighScores();
     }
 }

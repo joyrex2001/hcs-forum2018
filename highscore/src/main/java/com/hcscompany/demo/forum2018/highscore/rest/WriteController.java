@@ -1,5 +1,6 @@
 package com.hcscompany.demo.forum2018.highscore.rest;
 
+import io.micrometer.core.instrument.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class WriteController {
     public ResponseEntity<ScoreModel> postScore(@RequestBody ScoreModel score) throws IOException {
         service.update(score);
         sender.emitHighScores();
+        Metrics.counter("rest.post_score").increment();
         return new ResponseEntity<ScoreModel>(score, HttpStatus.OK);
     }
 
@@ -41,6 +43,7 @@ public class WriteController {
     public ResponseEntity<ScoreModel> putScore(@RequestBody ScoreModel score) throws IOException {
         service.put(score);
         sender.emitHighScores();
+        Metrics.counter("rest.put_score").increment();
         return new ResponseEntity<ScoreModel>(score, HttpStatus.OK);
     }
 
@@ -53,6 +56,7 @@ public class WriteController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         };
         sender.emitHighScores();
+        Metrics.counter("rest.delete_score").increment();
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 

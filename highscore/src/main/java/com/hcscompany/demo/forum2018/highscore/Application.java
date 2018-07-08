@@ -13,7 +13,7 @@ import java.util.Arrays;
 @SpringBootApplication
 public class Application {
 
-    private static final Logger logger = LoggerFactory.getLogger(CommandLineAppStartupRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandLineAppStartupRunner.class);
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -27,7 +27,7 @@ public class Application {
     public class CommandLineAppStartupRunner implements CommandLineRunner {
         @Override
         public void run(String... args) throws Exception {
-            logger.info("Application started with command-line arguments: {}", Arrays.toString(args));
+            LOGGER.info("Application started with command-line arguments: {}", Arrays.toString(args));
         }
     }
 

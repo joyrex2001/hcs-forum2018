@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.micrometer.core.instrument.Metrics;
+
 import com.hcscompany.demo.forum2018.highscore.service.ScoreService;
 import com.hcscompany.demo.forum2018.highscore.model.ScoreModel;
 
@@ -31,18 +33,21 @@ public class ReadController {
     @GetMapping(value = "/score/{id}")
     public ResponseEntity<ScoreModel> getScore(@PathVariable(value = "id") String id) throws IOException {
         Optional<ScoreModel> score = service.get(id);
+        Metrics.counter("rest.get_score").increment();
         return new ResponseEntity<ScoreModel>(score.get(), HttpStatus.OK);
     }
 
     @GetMapping(value = "/player/{id}/score")
     public ResponseEntity<List<ScoreModel>> getUserScores(@PathVariable(value = "id") String id) throws IOException {
         List<ScoreModel> scores = service.listPlayerScores(id);
+        Metrics.counter("rest.get_user_scores").increment();
         return new ResponseEntity<List<ScoreModel>>(scores, HttpStatus.OK);
     }
 
     @GetMapping(value = "/highscore")
     public ResponseEntity<List<ScoreModel>> getHighscores() throws IOException {
         List<ScoreModel> scores = service.listTopScores(10);
+        Metrics.counter("rest.get_highscore").increment();
         return new ResponseEntity<List<ScoreModel>>(scores, HttpStatus.OK);
     }
 

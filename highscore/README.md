@@ -23,3 +23,7 @@ Show scores by user:
 ```bash
 curl localhost:9090/player/1dc9b6c8-d921-434c-a496-f41f33c79d83/score
 ```
+
+## Prometheus
+
+The service exposes prometheus values on: http://localhost:9090/actuator/prometheus

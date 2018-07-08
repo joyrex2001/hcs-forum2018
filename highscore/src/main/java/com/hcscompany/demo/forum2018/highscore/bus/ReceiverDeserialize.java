@@ -1,5 +1,6 @@
 package com.hcscompany.demo.forum2018.highscore.bus;
 
+import io.micrometer.core.instrument.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -15,6 +16,7 @@ public class ReceiverDeserialize extends JsonDeserializer<ScoreModel> {
             return super.deserialize(topic, data);
         } catch (Exception e) {
             LOGGER.error("Problem deserializing data " + new String(data) + " on topic " + topic, e);
+            Metrics.counter("bus.invalid_message").increment();
             return null;
         }
     }
