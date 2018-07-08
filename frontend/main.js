@@ -1,12 +1,20 @@
-var express  = require('express'),
-    morgan   = require('morgan'),
-    socketio = require('socket.io'),
-    http     = require('http'),
-    axios    = require('axios'),
-    kafka    = require('./kafka'),
-    config   = require('./config')
+var express    = require('express'),
+    epimetheus = require('epimetheus'),
+    prometheus = require('prom-client'),
+    morgan     = require('morgan'),
+    socketio   = require('socket.io'),
+    http       = require('http'),
+    axios      = require('axios'),
+    kafka      = require('./kafka'),
+    config     = require('./config')
 
 require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
+
+// Prometheus custom metrics
+const prNewGame    = new prometheus.Counter({name:'newgame_count', help:'Total start game'})
+const prEndGame    = new prometheus.Counter({name:'endgame_count', help:'Total end game'})
+const prConnect    = new prometheus.Counter({name:'connect_count', help:'Total connects'})
+const prDisconnect = new prometheus.Counter({name:'disconnect_count', help:'Total disconnects'})
 
 // highscores is a global variable that contains the latest highscores. This
 // variable is updated by the kafka consumer whenever a new highscores message
@@ -92,6 +100,7 @@ function eventHandler(io,socket,bus) {
   socket.on('start',function(player, score) {
     console.log(`new game player ${player.id}`)
     sendKafka(bus, "newgame", player)
+    prNewGame.inc(1)
   })
   socket.on('gameover',function(player, score) {
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
@@ -99,6 +108,7 @@ function eventHandler(io,socket,bus) {
     sendKafka(bus, "score", {score: score, playerId: player.id, name: player.name})
     sendScore({score: score, playerId: player.id, name: player.name})
     if (!config.enable_kafka) io.emit('highscore',highscores)
+    prEndGame.inc(1)
   })
 }
 
@@ -126,6 +136,7 @@ function main() {
   app.use(morgan('[:date[iso]] [REQ]   :method :url :status :res[content-length] - :remote-addr - :response-time ms'));
   app.use('/', express.static('htdocs'))
   app.get('/healthz', healthz)
+  epimetheus.instrument(app)
 
   // init websockets
   var server = http.Server(app)
@@ -136,11 +147,13 @@ function main() {
     socket.on('init',function(player) {
       console.log(`connected player ${player.id}`)
       sendKafka(bus, "connect", player)
+      prConnect.inc(1)
       socket.emit('highscore',highscores)
       eventHandler(io,socket,bus,player)
       socket.on('disconnect',function(){
         console.log(`disconnected player ${player.id}`)
         sendKafka(bus, "disconnect", player)
+        prDisconnect.inc(1)
       })
     })
   })
