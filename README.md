@@ -13,9 +13,11 @@ Note that the front-end might fail to start with a 'unknown topic' error. This c
 ## Architecture
 
 The architecture of the demo is as below:
+
 ![Architecture](diagrams/architecture.png)
 
 The demo uses messaging as illustrated the below sequence diagram:
+
 ![Architecture](diagrams/sequence.png)
 
 ### Kafka message bus
