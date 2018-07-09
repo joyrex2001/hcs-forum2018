@@ -1,0 +1,15 @@
+title Game messages
+
+Game->Backend: Player connect
+Backend->Kafka: Connect message
+Backend->Game: Current highscores
+Game->Backend: Start game
+Backend->Kafka: Start game
+Game->Backend: Score
+Backend->Kafka: Score message
+Kafka->Highscore: Score message
+Highscore->Kafka: Highscore message
+Kafka->Backend: Highscore message
+Backend->Game: Highscore message
+Game->Backend: Disconnect message
+Backend->Kafka: Disconnect message
