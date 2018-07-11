@@ -100,7 +100,12 @@ function main() {
   // init http
   var app = express()
   app.use(express.json())
-  app.use(morgan('[:date[iso]] [REQ]   :method :url :status :res[content-length] - :remote-addr - :response-time ms'));
+  app.use(morgan('[:date[iso]] [REQ]   :method :url :status :res[content-length] - :remote-addr - :response-time ms', {
+    skip: function (req, res) {
+        if (req.url == '/healthz') return true
+        return false
+    }
+  }))
   app.use('/', express.static('htdocs'))
   app.get('/healthz', healthz)
   epimetheus.instrument(app)
