@@ -41,7 +41,8 @@ function healthz(req, res) {
 // given kafka client.
 function sendKafka(bus, topic, data) {
   if (!config.enable_kafka) {
-    console.log(`ignoring sendKafka(${topic},${id},${data})`)
+    var message = JSON.stringify(data)
+    console.log(`ignoring sendKafka(${topic},${message})`)
     return
   }
   bus.Send(topic, data)
