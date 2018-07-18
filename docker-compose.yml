@@ -1,10 +1,8 @@
 version: "2"
 
 services:
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/opt/app-root/src
+  game:
+    build: ./game
     environment:
       SERVER_PORT: "8080"
       KAFKA_SERVERS: "kafka:9092"

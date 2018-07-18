@@ -70,6 +70,7 @@ function eventHandler(io,socket,bus) {
     prNewGame.inc(1)
   })
   socket.on('gameover',function(player, score) {
+    // TODO: validate input, add simple checksum or callback?
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
     sendKafka(bus, "score", {score: score, playerId: player.id, name: player.name})

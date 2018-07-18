@@ -8,7 +8,7 @@ To start-up the development environment:
 docker-compose up
 ```
 
-Note that the front-end might fail to start with a 'unknown topic' error. This can be work-around by adding a score using the highscore rest api first (see highscore/README.md) and then ```docker-compose restart frontend```.
+Note that the front-end might fail to start with a 'unknown topic' error. This can be work-around by adding a score using the highscore rest api first (see highscore/README.md) and then ```docker-compose restart game```.
 
 ## Architecture
 

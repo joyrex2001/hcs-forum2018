@@ -5,16 +5,21 @@
   "license": "",
   "main": "main.js",
   "scripts": {
+    "build": "gulp",
     "start": "node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "console-stamp": "^0.2.6",
+    "epimetheus": "^1.0.55",
     "express": "^4.16.3",
     "kafka-node": "^2.6.1",
     "morgan": "^1.9.0",
+    "prom-client": "^10.2.3",
     "socket.io": "^2.1.1",
-    "epimetheus": "^1.0.55",
-    "prom-client": "^10.2.3"
+    "gulp-cli": "^2.0.1",
+    "gulp": "~3.9",
+    "gulp-concat": "~2.6",
+    "gulp-uglify": "~3.0"
   }
 }
