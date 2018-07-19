@@ -10,7 +10,10 @@ function build() {
   gulp.src([
       "./frontend/js/lib/phaser.min.js",
       "./frontend/js/lib/box2d-plugin-full.js",
-      "./frontend/js/*.js",
+      "./frontend/js/websock.js",
+      "./frontend/js/player.js",
+      "./frontend/js/game.js",
+      "./frontend/js/util.js"
     ])
     .pipe(concat("game.js"))
     .pipe(uglify({ compress: { hoist_funs: true } }))

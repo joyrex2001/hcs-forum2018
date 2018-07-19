@@ -31,6 +31,10 @@ var highscores = [
   { name: "Pavel",    score: 1 }
 ]
 
+// games is a global variable that contains the active players and is used to
+// verify if the score that has been send belongs to a game.
+var games = new Map()
+
 // healthz will return an ok for monitoring purposes
 function healthz(req, res) {
   res.json({ status: 'OK', timestamp: new Date() })
@@ -46,6 +50,20 @@ function sendKafka(bus, topic, data) {
     return
   }
   bus.Send(topic, data)
+}
+
+// isValidSession will check if the received game details belongs to a valid
+// game.
+function isValidSession(player) {
+  if (!player) {
+    console.log(`gameover event without player, abuse?`)
+    return false
+  }
+  if (!games.has(player.id)) {
+    console.log(`gameover event without active game, abuse?`)
+    return false
+  }
+  return true
 }
 
 // updateLocalHighscore will update the local highscore table.
@@ -68,9 +86,30 @@ function eventHandler(io,socket,bus) {
     console.log(`new game player ${player.id}`)
     sendKafka(bus, "newgame", player)
     prNewGame.inc(1)
+    games.set(player.id,Date.now())
   })
   socket.on('gameover',function(player, score) {
-    // TODO: validate input, add simple checksum or callback?
+    console.log(`gameover event received ${score} for ${player.id} as ${player.name}`)
+    if (!isValidSession(player)) return
+    var elapsed = (Date.now()-games.get(player.id))/1000
+    if (elapsed<60) {
+      console.log(`gameover event received ${elapsed}s, abuse?`)
+      socket.emit('score',Math.floor(Math.random()*85))
+      games.delete(player.id)
+      return
+    }
+    games.set(player.id,score)
+    socket.emit('score',score)
+  })
+  socket.on('score',function(player, score) {
+    console.log(`score event received ${score} for ${player.id} as ${player.name}`)
+    if (!isValidSession(player)) return
+    var gscore = games.get(player.id)
+    games.delete(player.id)
+    if (gscore!=score) {
+      console.log(`score event received different score as gameover, abuse?`)
+      return
+    }
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
     sendKafka(bus, "score", {score: score, playerId: player.id, name: player.name})

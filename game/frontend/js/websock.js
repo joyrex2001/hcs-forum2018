@@ -6,6 +6,7 @@ var wsc = {
   ping: null,
   timeout: 10000,
   player: null,
+  score: null,
   // connection management
   connect: function() {
     var self = this;
@@ -30,6 +31,9 @@ var wsc = {
     } );
     this.socket.on( 'highscore', function (data) {
       self.highscore = data;
+    } );
+    this.socket.on( 'score', function (score) {
+      return ((self.score&score)==self.score)? self.socket.emit('score',player, score) : 0;
     } );
     this.socket.on( 'ping', function (data) {
       self.ping = Date.now();
@@ -56,6 +60,7 @@ var wsc = {
     return this.highscore;
   },
   sendScore: function(player, score) {
+    this.score = score;
     this.socket.emit('gameover',player, score);
   }
 };
