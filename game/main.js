@@ -4,16 +4,20 @@ var express    = require('express'),
     morgan     = require('morgan'),
     socketio   = require('socket.io'),
     http       = require('http'),
-    kafka      = require('./kafka'),
+    kafka      = require('./lib/kafka'),
     config     = require('./config')
 
 require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
+
+// session is a gloabal session manager to validate running games and scores.
+var session = new (require('./lib/session')).Manager()
 
 // Prometheus custom metrics
 const prNewGame    = new prometheus.Counter({name:'newgame_count', help:'Total start game'})
 const prEndGame    = new prometheus.Counter({name:'endgame_count', help:'Total end game'})
 const prConnect    = new prometheus.Counter({name:'connect_count', help:'Total connects'})
 const prDisconnect = new prometheus.Counter({name:'disconnect_count', help:'Total disconnects'})
+const prAbuse      = new prometheus.Counter({name:'hack_count', help:'Total hack attempts'})
 
 // highscores is a global variable that contains the latest highscores. This
 // variable is updated by the kafka consumer whenever a new highscores message
@@ -31,10 +35,6 @@ var highscores = [
   { name: "Pavel",    score: 1 }
 ]
 
-// games is a global variable that contains the active players and is used to
-// verify if the score that has been send belongs to a game.
-var games = new Map()
-
 // healthz will return an ok for monitoring purposes
 function healthz(req, res) {
   res.json({ status: 'OK', timestamp: new Date() })
@@ -44,26 +44,12 @@ function healthz(req, res) {
 // sendKafka will send a message with given id and data to given topic using
 // given kafka client.
 function sendKafka(bus, topic, data) {
-  if (!config.enable_kafka) {
+  if (!config.kafka_enabled) {
     var message = JSON.stringify(data)
     console.log(`ignoring sendKafka(${topic},${message})`)
     return
   }
   bus.Send(topic, data)
-}
-
-// isValidSession will check if the received game details belongs to a valid
-// game.
-function isValidSession(player) {
-  if (!player) {
-    console.log(`gameover event without player, abuse?`)
-    return false
-  }
-  if (!games.has(player.id)) {
-    console.log(`gameover event without active game, abuse?`)
-    return false
-  }
-  return true
 }
 
 // updateLocalHighscore will update the local highscore table.
@@ -85,38 +71,28 @@ function eventHandler(io,socket,bus) {
   socket.on('start',function(player, score) {
     console.log(`new game player ${player.id}`)
     sendKafka(bus, "newgame", player)
+    session.NewGame(player)
     prNewGame.inc(1)
-    games.set(player.id,Date.now())
   })
   socket.on('gameover',function(player, score) {
-    if (!isValidSession(player)) {
-      console.log(`gameover event received without player object, abuse?`)
-      return
-    }
-    console.log(`gameover event received ${score} for ${player.id} as ${player.name}`)
-    var elapsed = (Date.now()-games.get(player.id))/1000
-    if (elapsed<60) {
-      console.log(`gameover event received ${elapsed}s, abuse?`)
+    if (!session.IsValidGameOver(player, score)) {
       socket.emit('score',Math.floor(Math.random()*85))
-      games.delete(player.id)
+      prAbuse.inc(1)
       return
     }
-    games.set(player.id,score)
     socket.emit('score',score)
+    return
   })
   socket.on('score',function(player, score) {
     console.log(`score event received ${score} for ${player.id} as ${player.name}`)
-    if (!isValidSession(player)) return
-    var gscore = games.get(player.id)
-    games.delete(player.id)
-    if (gscore!=score) {
-      console.log(`score event received different score as gameover, abuse?`)
+    if (!session.IsValidScore(player, score)) {
+      prAbuse.inc(1)
       return
     }
     console.log(`add score ${score} for ${player.id} as ${player.name}`)
     updateLocalHighscore(player, score)
     sendKafka(bus, "score", {score: score, playerId: player.id, name: player.name})
-    if (!config.enable_kafka) io.emit('highscore',highscores)
+    if (!config.kafka_enabled) io.emit('highscore',highscores)
     prEndGame.inc(1)
   })
 }
@@ -125,7 +101,7 @@ function eventHandler(io,socket,bus) {
 function main() {
   // init kafka
   var bus
-  if (config.enable_kafka) {
+  if (config.kafka_enabled) {
     bus = new kafka.Client(config.kafka_servers, { Reconnect: 2000 })
     bus.Consume("highscore", function(message) {
       var buf = new Buffer(message.value, "binary")
