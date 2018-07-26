@@ -89,8 +89,11 @@ function eventHandler(io,socket,bus) {
     games.set(player.id,Date.now())
   })
   socket.on('gameover',function(player, score) {
+    if (!isValidSession(player)) {
+      console.log(`gameover event received without player object, abuse?`)
+      return
+    }
     console.log(`gameover event received ${score} for ${player.id} as ${player.name}`)
-    if (!isValidSession(player)) return
     var elapsed = (Date.now()-games.get(player.id))/1000
     if (elapsed<60) {
       console.log(`gameover event received ${elapsed}s, abuse?`)
