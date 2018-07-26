@@ -10,7 +10,8 @@ var express    = require('express'),
 require('console-stamp')(console,{ pattern: "yyyy-mm-dd'T'HH:MM:ss.l'Z'" })
 
 // session is a gloabal session manager to validate running games and scores.
-var session = new (require('./lib/session')).Manager()
+var session = new (require('./lib/session'))
+                  .Manager(config.redis_host,config.redis_port)
 
 // Prometheus custom metrics
 const prNewGame    = new prometheus.Counter({name:'newgame_count', help:'Total start game'})
@@ -74,8 +75,8 @@ function eventHandler(io,socket,bus) {
     session.NewGame(player)
     prNewGame.inc(1)
   })
-  socket.on('gameover',function(player, score) {
-    if (!session.IsValidGameOver(player, score)) {
+  socket.on('gameover',async function(player, score) {
+    if (!(await session.IsValidGameOver(player, score))) {
       socket.emit('score',Math.floor(Math.random()*85))
       prAbuse.inc(1)
       return
@@ -83,9 +84,9 @@ function eventHandler(io,socket,bus) {
     socket.emit('score',score)
     return
   })
-  socket.on('score',function(player, score) {
+  socket.on('score',async function(player, score) {
     console.log(`score event received ${score} for ${player.id} as ${player.name}`)
-    if (!session.IsValidScore(player, score)) {
+    if (!(await session.IsValidScore(player, score))) {
       prAbuse.inc(1)
       return
     }
