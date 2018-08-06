@@ -58,4 +58,4 @@ parameters:
 - name: SOURCE_REPOSITORY_REF
   value: master
 - name: CONTEXT_DIR
-  value: /
+  value: game
