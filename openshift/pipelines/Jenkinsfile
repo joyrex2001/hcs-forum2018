@@ -1,0 +1,108 @@
+pipeline {
+  agent {
+    label 'nodejs'
+  }
+  environment {
+    template = "${TEMPLATE}"
+    projectbase = "${PROJECTBASE}"
+    appname = "${APPLICATION_NAME}"
+    buildproject = "${projectbase}-dev"
+    prodproject = "${projectbase}-prod"
+    buildconfig = "bc/${appname}"
+  }
+  stages {
+
+    stage('update BuildConfig dev project') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${buildproject}") {
+              openshift.apply(openshift.process("-f", template, "-p NAME=${appname}", "-p SOURCE_REPOSITORY_URL=${SOURCE_REPOSITORY_URL}", "-p SOURCE_REPOSITORY_REF=${SOURCE_REPOSITORY_REF}", "-p CONTEXT_DIR=${CONTEXT_DIR}"))
+            }
+          }
+        }
+      }
+    }
+    stage('Build in build project') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${buildproject}") {
+              myBuild = openshift.selector(buildconfig).startBuild()
+              myBuild.logs("-f")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy in dev') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${buildproject}") {
+              newDeploy = openshift.selector("dc/${appname}").rollout()
+              newDeploy.latest()
+              newDeploy.status('-w')
+            }
+          }
+        }
+      }
+    }
+
+    stage('Ask for approval') {
+      steps {
+        script {
+          openshift.withCluster() {
+            input("Deploy to Production?")
+          }
+        }
+      }
+    }
+    stage('Ensure DeploymentConfig exists in prod') {
+      when {
+        expression {
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              return !openshift.selector("dc/${appname}").exists();
+            }
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              openshift.apply(openshift.process("-f", template, "-p NAME=${appname}"))
+              openshift.selector("${buildconfig}").delete()
+            }
+          }
+        }
+      }
+    }
+    stage('Tag image from dev to prod') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              openshift.tag("${buildproject}/${appname}:latest", "${prodproject}/${appname}:latest")
+              openshift.tag("${buildproject}/${appname}:latest", "${prodproject}/${appname}:${BUILD_ID}")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy in Productie') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              newDeploy = openshift.selector("dc/${appname}").rollout()
+              newDeploy.latest()
+              newDeploy.status('-w')
+            }
+          }
+        }
+      }
+    }
+  }
+}
