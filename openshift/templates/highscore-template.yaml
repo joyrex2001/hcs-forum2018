@@ -2,16 +2,16 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: game-template
+  name: highscore-template
   annotations:
-    openshift.io/display-name: Game Template
-    description: The HCS Forum 2018 Game
+    openshift.io/display-name: Highscore Template
+    description: The HCS Forum 2018 highscore - Highscore service
 message: |-
   The following service(s) have been created in your project: ${NAME}.
 
   Good luck!
 labels:
-  template: game-template
+  template: highscore-template
 objects:
 - kind: Service
   apiVersion: v1
@@ -27,20 +27,6 @@ objects:
       targetPort: 8080
     selector:
       name: "${NAME}"
-- kind: Service
-  apiVersion: v1
-  metadata:
-    name: "${NAME}-redis"
-    annotations:
-      description: Exposes and load balances the redis pods
-      prometheus.io/scrape: "true"
-  spec:
-    ports:
-    - name: redis
-      port: 6379
-      targetPort: 6379
-    selector:
-      name: "${NAME}-redis"
 - kind: Route
   apiVersion: v1
   metadata:
@@ -77,7 +63,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: nodejs-8-rhel7:latest
+          name: openjdk18-openshift:latest
           namespace: openshift
     output:
       to:
@@ -114,61 +100,41 @@ objects:
         - name: ${NAME}
           image: " "
           env:
+          - name: "SERVER_PORT"
+            value: 8080
           - name: "KAFKA_SERVERS"
             value: "${KAFKA_SERVERS}"
-          - name: "REDIS_HOST"
-            value: "${NAME}-redis"
+          - name: "DATASOURCE_PLATFORM"
+            value: "postgres"
+          - name: "DATASOURCE_URL"
+            value: "jdbc:postgresql://${DATABASE_SERVICE_NAME}:5432/highscore"
+          - name: "DATASOURCE_USER"
+            valueFrom:
+              secretKeyRef:
+                name: "${DATABASE_SERVICE_NAME}"
+                key: database-user
+          - name: "DATASOURCE_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                name: "${DATABASE_SERVICE_NAME}"
+                key: database-password
           ports:
           - containerPort: 8080
           readinessProbe:
             timeoutSeconds: 3
             initialDelaySeconds: 3
             httpGet:
-              path: "/healthz"
+              path: "/actuator"
               port: 8080
           livenessProbe:
             timeoutSeconds: 3
             initialDelaySeconds: 30
             httpGet:
-              path: "/healthz"
+              path: "/actuator"
               port: 8080
           resources:
             limits:
               memory: "${MEMORY_LIMIT}"
-- kind: DeploymentConfig
-  apiVersion: v1
-  metadata:
-    name: "${NAME}-redis"
-    annotations:
-      description: Defines how to deploy the redis server
-  spec:
-    replicas: 1
-    selector:
-      name: "${NAME}-redis"
-    template:
-      metadata:
-        name: "${NAME}-redis"
-        labels:
-          name: "${NAME}"
-      spec:
-        containers:
-        - name: ${NAME}
-          image: docker.io/redis
-          ports:
-          - containerPort: 6379
-          readinessProbe:
-            timeoutSeconds: 3
-            initialDelaySeconds: 3
-            tcpSocket:
-              port: 6379
-          livenessProbe:
-            timeoutSeconds: 3
-            initialDelaySeconds: 30
-            tcpSocket:
-              port: 6379
-          resources:
-            limits:
-              memory: "${MEMORY_LIMIT_REDIS}"
 parameters:
 - name: NAME
   displayName: Name
@@ -179,17 +145,17 @@ parameters:
   displayName: Memory Limit
   description: Maximum amount of memory the frontend container can use.
   required: true
-  value: 256Mi
-- name: MEMORY_LIMIT_REDIS
-  displayName: Memory Limit
-  description: Maximum amount of memory the redis container can use.
-  required: true
-  value: 128Mi
+  value: 512Mi
 - name: KAFKA_SERVERS
   displayName: Kafka servers
   description: Comma seperated list of kafka hostnames to bootstrap the kafka connection.
   required: false
   value: ""
+- name: DATABASE_SERVICE_NAME
+  displayName: Database service name
+  description: Name of the Postgres database service.
+  required: true
+  value: "postgres"
 - name: SOURCE_REPOSITORY_URL
   displayName: Git Repository URL
   description: The URL of the repository with your application source code.
@@ -204,4 +170,4 @@ parameters:
   displayName: Context Directory
   description: Set this to the relative path to your project if it is not in the root
     of your repository.
-  value: game
+  value: highscore
