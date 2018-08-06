@@ -48,11 +48,11 @@ objects:
     lastVersion: 0
 parameters:
 - name: APPLICATION_NAME
-  value: demo
+  value: game
 - name: TEMPLATE
   value: openshift/templates/game-template.yaml
 - name: PROJECTBASE
-  value: demo
+  value: game
 - name: SOURCE_REPOSITORY_URL
   value: git@gitlab.com:hcs-openshift/hcs-forum2018.git
 - name: SOURCE_REPOSITORY_REF
