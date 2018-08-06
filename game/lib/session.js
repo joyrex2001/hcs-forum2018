@@ -1,5 +1,5 @@
 const redis = require('redis')
-const {promisify} = require('util');
+const {promisify} = require('util')
 
 function Manager(host, port)  {
   this.host  = host
@@ -7,17 +7,20 @@ function Manager(host, port)  {
   this.games = new Map()
   this.redis = null
   if (host && host.length > 0) {
-    this.redis = redis.createClient({
-      retry_strategy: function (options) {
-        return Math.min(options.attempt * 100, 3000);
+    this.redis = redis.createClient(`redis://${host}:${port}`,{
+      retry_strategy: function(options) {
+        return 3000
       }
     })
     this.getAsync = promisify(this.redis.get).bind(this.redis)
     this.redis.on('connect', function() {
       console.log(`connected to redis ${host}:${port}`)
     })
-    this.redis.on('error', function (err) {
-      console.log(`redis error ${err}`);
+    this.redis.on('error', function(err) {
+      console.log(`redis error ${err}`)
+    })
+    this.redis.on('reconnecting', function(err) {
+      //console.log(`redis reconnecting...`)
     })
   }
 }
