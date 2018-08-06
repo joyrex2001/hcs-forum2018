@@ -50,7 +50,7 @@ parameters:
 - name: APPLICATION_NAME
   value: demo
 - name: TEMPLATE
-  value: templates/game-template.yaml
+  value: openshift/templates/game-template.yaml
 - name: PROJECTBASE
   value: demo
 - name: SOURCE_REPOSITORY_URL
