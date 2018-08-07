@@ -149,7 +149,7 @@ objects:
       metadata:
         name: "${NAME}-redis"
         labels:
-          name: "${NAME}"
+          name: "${NAME}-redis"
       spec:
         containers:
         - name: ${NAME}
