@@ -1,0 +1,220 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: kafka-template
+  annotations:
+    openshift.io/display-name: Kafka Template
+    description: The HCS Forum 2018 kafka - Kafka messagebus
+message: |-
+  The following service(s) have been created in your project: ${NAME}.
+
+  Good luck!
+labels:
+  template: kafka-template
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-kafka"
+    annotations:
+      description: Exposes and load balances the kafka pods
+      prometheus.io/scrape: "true"
+  spec:
+    ports:
+    - name: kafka
+      port: 9092
+      targetPort: 9092
+    selector:
+      name: "${NAME}-kafka"
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-zookeeper"
+    annotations:
+      description: Exposes and load balances the zookeeper pods
+      prometheus.io/scrape: "true"
+  spec:
+    ports:
+    - name: zookeeper
+      port: 2181
+      targetPort: 2181
+    selector:
+      name: "${NAME}-zookeeper"
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-kafka"
+    labels:
+      app: "${NAME}-kafka"
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}-kafka:latest"
+    source:
+      dockerfile: |-
+        FROM docker.io/wurstmeister/kafka:latest
+        RUN chmod -R g+rw /opt/kafka/config
+    strategy:
+      type: Docker
+      dockerStrategy:
+    triggers:
+    - type: ConfigChange
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-kafka"
+    labels:
+      app: "${NAME}-kafka"
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-zookeeper"
+    labels:
+      app: "${NAME}-zookeeper"
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}-zookeeper:latest"
+    source:
+      dockerfile: |-
+        FROM docker.io/wurstmeister/zookeeper:latest
+        RUN chgrp -R root /opt/zookeeper-${ZOOKEEPER_VERSION}       && \
+            chmod g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}          && \
+            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /conf && \
+            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /data && \
+            chmod g+r /etc/ssh/*key
+    strategy:
+      type: Docker
+      dockerStrategy:
+    triggers:
+    - type: ConfigChange
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-zookeeper"
+    labels:
+      app: "${NAME}-zookeeper"
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-kafka"
+    annotations:
+      description: Defines how to deploy the kafka server
+  spec:
+    replicas: 1
+    selector:
+      name: "${NAME}-kafka"
+    template:
+      metadata:
+        name: "${NAME}-kafka"
+        labels:
+          name: "${NAME}-kafka"
+      spec:
+        containers:
+        - name: "${NAME}-kafka"
+          image: "${NAME}-kafka"
+          volumeMounts:
+            - mountPath: /kafka
+              name: kafka-volume
+          env:
+          - name: "KAFKA_ADVERTISED_HOST_NAME"
+            value: "kafka"
+          - name: "KAFKA_ZOOKEEPER_CONNECT"
+            value: "${NAME}-zookeeper:2181"
+          - name: "KAFKA_BROKER_ID"
+            value: "999"
+          ports:
+          - containerPort: 9092
+          readinessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 3
+            tcpSocket:
+              port: 9092
+          livenessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 9092
+          resources:
+            limits:
+              memory: "${MEMORY_LIMIT_KAFKA}"
+        volumes:
+        - name: kafka-volume
+          emptyDir: {}
+    triggers:
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - "${NAME}-kafka"
+          from:
+            kind: ImageStreamTag
+            name: "${NAME}-kafka:latest"
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}-zookeeper"
+    annotations:
+      description: Defines how to deploy the zookeeper server
+  spec:
+    replicas: 1
+    selector:
+      name: "${NAME}-zookeeper"
+    template:
+      metadata:
+        name: "${NAME}-zookeeper"
+        labels:
+          name: "${NAME}-zookeeper"
+      spec:
+        containers:
+        - name: "${NAME}-zookeeper"
+          image: "${NAME}-zookeeper"
+          volumeMounts:
+            - mountPath: /opt/zookeeper-3.4.9/data
+              name: data-volume
+          ports:
+          - containerPort: 2181
+          readinessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 3
+            tcpSocket:
+              port: 2181
+          livenessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 2181
+          resources:
+            limits:
+              memory: "${MEMORY_LIMIT_ZOOKEEPER}"
+        volumes:
+        - name: data-volume
+          emptyDir: {}
+    triggers:
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - "${NAME}-zookeeper"
+          from:
+            kind: ImageStreamTag
+            name: "${NAME}-zookeeper:latest"
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the frontend objects defined in this template.
+  required: true
+  value: demo
+- name: MEMORY_LIMIT_KAFKA
+  displayName: Memory Limit
+  description: Maximum amount of memory the kafka container can use.
+  required: true
+  value: 1024Mi
+- name: MEMORY_LIMIT_ZOOKEEPER
+  displayName: Memory Limit
+  description: Maximum amount of memory the zookeeper container can use.
+  required: true
+  value: 1024Mi

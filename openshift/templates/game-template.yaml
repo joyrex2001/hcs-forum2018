@@ -189,7 +189,7 @@ parameters:
   displayName: Kafka servers
   description: Comma seperated list of kafka hostnames to bootstrap the kafka connection.
   required: false
-  value: ""
+  value: "" # "demo-kafka:9092"
 - name: SOURCE_REPOSITORY_URL
   displayName: Git Repository URL
   description: The URL of the repository with your application source code.

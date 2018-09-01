@@ -150,7 +150,7 @@ parameters:
   displayName: Kafka servers
   description: Comma seperated list of kafka hostnames to bootstrap the kafka connection.
   required: false
-  value: ""
+  value: "" # "demo-kafka:9092"
 - name: DATABASE_SERVICE_NAME
   displayName: Database service name
   description: Name of the Postgres database service.
