@@ -4,7 +4,7 @@ The demo can be deployed to OpenShift either manually, or by the use of the
 pipeline feature of OpenShift. This document describes how to deploy the demo
 using pipelines.
 
-## Required project setup
+## Project setup
 
 The pipeline setup consists out of three projects; `game-cicd`, `game-test`,
 and `game-prod`. The `game-cicd` project will contain a Jenkins instance with
