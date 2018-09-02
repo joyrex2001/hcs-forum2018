@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ${APPLICATION_NAME}-pipeline
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+    creationTimestamp: null
+    labels:
+      app: ${APPLICATION_NAME}
+      name: ${APPLICATION_NAME}-pipeline
+    name: ${APPLICATION_NAME}-pipeline
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    runPolicy: SerialLatestOnly
+    source:
+      git:
+        ref: ${SOURCE_REPOSITORY_REF}
+        uri: ${SOURCE_REPOSITORY_URL}
+      type: Git
+      sourceSecret:
+        name: gitlab
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          pipeline {
+            agent {
+              label '${AGENT}'
+            }
+            environment {
+              template_kafka = "${TEMPLATE_KAFKA}"
+              template_database = "${TEMPLATE_DATABASE}"
+              projectbase = "${PROJECTBASE}"
+              buildproject = "${projectbase}-dev"
+              prodproject = "${projectbase}-prod"
+            }
+            stages {
+              stage("Update kafka and postgresql in dev project") {
+                steps {
+                  script {
+                    openshift.withCluster() {
+                      openshift.withProject("${buildproject}") {
+                        [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+                      }
+                    }
+                  }
+                }
+              }
+              stage("Ask for approval") {
+                steps {
+                  script {
+                    openshift.withCluster() {
+                      input("Deploy to Production?")
+                    }
+                  }
+                }
+              }
+              stage("Update kafka and postgresql in prod project") {
+                steps {
+                  script {
+                    openshift.withCluster() {
+                      openshift.withProject("${prodproject}") {
+                        [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        env:
+        - name: AGENT
+          value: ${AGENT}
+        - name: PROJECTBASE
+          value: ${PROJECTBASE}
+        - name: TEMPLATE_KAFKA
+          value: ${TEMPLATE_KAFKA}
+        - name: TEMPLATE_DATABASE
+          value: ${TEMPLATE_DATABASE}
+        - name: SOURCE_REPOSITORY_URL
+          value: ${SOURCE_REPOSITORY_URL}
+        - name: SOURCE_REPOSITORY_REF
+          value: ${SOURCE_REPOSITORY_REF}
+      type: JenkinsPipeline
+    triggers: []
+  status:
+    lastVersion: 0
+parameters:
+- name: AGENT
+  value: base
+- name: APPLICATION_NAME
+  value: system
+- name: PROJECTBASE
+  value: game
+- name: TEMPLATE_KAFKA
+  value: openshift/templates/kafka-template.yaml
+- name: TEMPLATE_DATABASE
+  value: openshift/templates/database-template.yaml
+- name: SOURCE_REPOSITORY_URL
+  value: git@gitlab.com:hcs-openshift/hcs-forum2018.git
+- name: SOURCE_REPOSITORY_REF
+  value: master

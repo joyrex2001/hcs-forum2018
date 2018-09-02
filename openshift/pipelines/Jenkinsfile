@@ -1,6 +1,6 @@
 pipeline {
   agent {
-    label 'nodejs'
+    label '${AGENT}'
   }
   environment {
     template = "${TEMPLATE}"
@@ -11,8 +11,7 @@ pipeline {
     buildconfig = "bc/${appname}"
   }
   stages {
-
-    stage('update BuildConfig dev project') {
+    stage("Update BuildConfig dev project") {
       steps {
         script {
           openshift.withCluster() {
@@ -23,7 +22,7 @@ pipeline {
         }
       }
     }
-    stage('Build in build project') {
+    stage("Build in build project") {
       steps {
         script {
           openshift.withCluster() {
@@ -35,21 +34,20 @@ pipeline {
         }
       }
     }
-    stage('Deploy in dev') {
+    stage("Deploy in dev") {
       steps {
         script {
           openshift.withCluster() {
             openshift.withProject("${buildproject}") {
               newDeploy = openshift.selector("dc/${appname}").rollout()
               newDeploy.latest()
-              newDeploy.status('-w')
+              newDeploy.status("-w")
             }
           }
         }
       }
     }
-
-    stage('Ask for approval') {
+    stage("Ask for approval") {
       steps {
         script {
           openshift.withCluster() {
@@ -58,7 +56,7 @@ pipeline {
         }
       }
     }
-    stage('Ensure DeploymentConfig exists in prod') {
+    stage("Ensure DeploymentConfig exists in prod") {
       when {
         expression {
           openshift.withCluster() {
@@ -79,7 +77,7 @@ pipeline {
         }
       }
     }
-    stage('Tag image from dev to prod') {
+    stage("Tag image from dev to prod") {
       steps {
         script {
           openshift.withCluster() {
@@ -91,14 +89,14 @@ pipeline {
         }
       }
     }
-    stage('Deploy in Productie') {
+    stage("Deploy to production") {
       steps {
         script {
           openshift.withCluster() {
             openshift.withProject("${prodproject}") {
               newDeploy = openshift.selector("dc/${appname}").rollout()
               newDeploy.latest()
-              newDeploy.status('-w')
+              newDeploy.status("-w")
             }
           }
         }

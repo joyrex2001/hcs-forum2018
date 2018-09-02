@@ -7,7 +7,10 @@ metadata:
     openshift.io/display-name: Kafka Template
     description: The HCS Forum 2018 kafka - Kafka messagebus
 message: |-
-  The following service(s) have been created in your project: ${NAME}.
+  The following service(s) have been created in your project: 
+
+    * ${NAME}-kafka
+    * ${NAME}-zookeeper
 
   Good luck!
 labels:
@@ -82,9 +85,9 @@ objects:
       dockerfile: |-
         FROM docker.io/wurstmeister/zookeeper:latest
         RUN chgrp -R root /opt/zookeeper-${ZOOKEEPER_VERSION}       && \
-            chmod g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}          && \
             chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /conf && \
             chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /data && \
+            chmod g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}          && \
             chmod g+r /etc/ssh/*key
     strategy:
       type: Docker
@@ -207,7 +210,7 @@ parameters:
   displayName: Name
   description: The name assigned to all of the frontend objects defined in this template.
   required: true
-  value: demo
+  value: kafka
 - name: MEMORY_LIMIT_KAFKA
   displayName: Memory Limit
   description: Maximum amount of memory the kafka container can use.

@@ -30,6 +30,8 @@ objects:
       jenkinsPipelineStrategy:
         jenkinsfilePath: openshift/pipelines/Jenkinsfile
         env:
+        - name: AGENT
+          value: ${AGENT}
         - name: APPLICATION_NAME
           value: ${APPLICATION_NAME}
         - name: TEMPLATE
@@ -47,6 +49,8 @@ objects:
   status:
     lastVersion: 0
 parameters:
+- name: AGENT
+  value: nodejs
 - name: APPLICATION_NAME
   value: game
 - name: TEMPLATE

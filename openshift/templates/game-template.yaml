@@ -7,7 +7,10 @@ metadata:
     openshift.io/display-name: Game Template
     description: The HCS Forum 2018 Game
 message: |-
-  The following service(s) have been created in your project: ${NAME}.
+  The following service(s) have been created in your project:
+
+    * ${NAME}
+    * ${NAME}-redis
 
   Good luck!
 labels:
@@ -174,7 +177,7 @@ parameters:
   displayName: Name
   description: The name assigned to all of the frontend objects defined in this template.
   required: true
-  value: demo
+  value: game
 - name: MEMORY_LIMIT
   displayName: Memory Limit
   description: Maximum amount of memory the frontend container can use.
@@ -189,7 +192,7 @@ parameters:
   displayName: Kafka servers
   description: Comma seperated list of kafka hostnames to bootstrap the kafka connection.
   required: false
-  value: "" # "demo-kafka:9092"
+  value: "kafka-kafka:9092"
 - name: SOURCE_REPOSITORY_URL
   displayName: Git Repository URL
   description: The URL of the repository with your application source code.
