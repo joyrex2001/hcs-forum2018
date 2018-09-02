@@ -5,7 +5,7 @@ message bus. The highscore service uses a PostgreSQL database to store the
 scores of each gameplay. The game service uses redis to share the state of
 games over multiple instances.
 
-![Architecture](diagrams/architecture.png)
+![Architecture](architecture.png)
 
 ### Game and frontend
 
