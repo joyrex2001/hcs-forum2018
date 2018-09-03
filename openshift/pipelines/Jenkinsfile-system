@@ -1,0 +1,43 @@
+pipeline {
+  agent none
+  environment {
+    template_kafka = "${TEMPLATE_KAFKA}"
+    template_database = "${TEMPLATE_DATABASE}"
+    projectbase = "${PROJECTBASE}"
+    buildproject = "${projectbase}-dev"
+    prodproject = "${projectbase}-prod"
+  }
+  stages {
+    stage("Update kafka and postgresql in dev project") {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${buildproject}") {
+              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+            }
+          }
+        }
+      }
+    }
+    stage("Ask for approval") {
+      steps {
+        script {
+          openshift.withCluster() {
+            input("Deploy to Production?")
+          }
+        }
+      }
+    }
+    stage("Update kafka and postgresql in prod project") {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+            }
+          }
+        }
+      }
+    }
+  }
+}

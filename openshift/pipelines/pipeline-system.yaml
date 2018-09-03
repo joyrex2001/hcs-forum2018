@@ -28,55 +28,8 @@ objects:
         name: gitlab
     strategy:
       jenkinsPipelineStrategy:
-        jenkinsfile: |-
-          pipeline {
-            agent {
-              label '${AGENT}'
-            }
-            environment {
-              template_kafka = "${TEMPLATE_KAFKA}"
-              template_database = "${TEMPLATE_DATABASE}"
-              projectbase = "${PROJECTBASE}"
-              buildproject = "${projectbase}-dev"
-              prodproject = "${projectbase}-prod"
-            }
-            stages {
-              stage("Update kafka and postgresql in dev project") {
-                steps {
-                  script {
-                    openshift.withCluster() {
-                      openshift.withProject("${buildproject}") {
-                        [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
-                      }
-                    }
-                  }
-                }
-              }
-              stage("Ask for approval") {
-                steps {
-                  script {
-                    openshift.withCluster() {
-                      input("Deploy to Production?")
-                    }
-                  }
-                }
-              }
-              stage("Update kafka and postgresql in prod project") {
-                steps {
-                  script {
-                    openshift.withCluster() {
-                      openshift.withProject("${prodproject}") {
-                        [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+        jenkinsfilePath: openshift/pipelines/Jenkinsfile-system
         env:
-        - name: AGENT
-          value: ${AGENT}
         - name: PROJECTBASE
           value: ${PROJECTBASE}
         - name: TEMPLATE_KAFKA
@@ -92,8 +45,6 @@ objects:
   status:
     lastVersion: 0
 parameters:
-- name: AGENT
-  value: base
 - name: APPLICATION_NAME
   value: system
 - name: PROJECTBASE
