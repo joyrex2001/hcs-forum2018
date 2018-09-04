@@ -28,7 +28,7 @@ objects:
         name: gitlab
     strategy:
       jenkinsPipelineStrategy:
-        jenkinsfilePath: openshift/pipelines/Jenkinsfile
+        jenkinsfilePath: openshift/pipelines/Jenkinsfile-template
         env:
         - name: AGENT
           value: ${AGENT}

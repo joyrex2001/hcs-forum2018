@@ -15,11 +15,11 @@ pipeline {
     stage("Update kafka and postgresql in dev project") {
       steps {
         script {
-          sh "pwd"
-          sh "find ."
-          openshift.withCluster() {
-            openshift.withProject("${buildproject}") {
-              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+          [template_kafka, template_database].each {
+            openshift.withCluster() {
+              openshift.withProject("${buildproject}") {
+                openshift.apply(openshift.process("-f", it))
+              }
             }
           }
         }
@@ -37,9 +37,11 @@ pipeline {
     stage("Update kafka and postgresql in prod project") {
       steps {
         script {
-          openshift.withCluster() {
-            openshift.withProject("${prodproject}") {
-              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
+          [template_kafka, template_database].each {
+            openshift.withCluster() {
+              openshift.withProject("${prodproject}") {
+                openshift.apply(openshift.process("-f", it))
+              }
             }
           }
         }
