@@ -1,5 +1,9 @@
 pipeline {
-  agent none
+  agent {
+    node {
+      label 'maven' 
+    }
+  }
   environment {
     template_kafka = "${TEMPLATE_KAFKA}"
     template_database = "${TEMPLATE_DATABASE}"
