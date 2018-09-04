@@ -34,7 +34,6 @@ oc process -f pipelines/pipeline-system.yaml | oc create -f - -n game-cicd
 
 ```bash
 oc process -f pipelines/pipeline-template.yaml \
-   -p AGENT="nodejs" \
    -p APPLICATION_NAME="game" \
    -p TEMPLATE="openshift/templates/game-template.yaml" \
    -p CONTEXT_DIR="game" \
@@ -43,7 +42,6 @@ oc process -f pipelines/pipeline-template.yaml \
 
 ```bash
 oc process -f pipelines/pipeline-template.yaml \
-   -p AGENT="maven" \
    -p APPLICATION_NAME="highscore" \
    -p TEMPLATE="openshift/templates/highscore-template.yaml" \
    -p CONTEXT_DIR="highscore" \
