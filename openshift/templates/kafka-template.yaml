@@ -7,7 +7,7 @@ metadata:
     openshift.io/display-name: Kafka Template
     description: The HCS Forum 2018 kafka - Kafka messagebus
 message: |-
-  The following service(s) have been created in your project: 
+  The following service(s) have been created in your project:
 
     * ${NAME}-kafka
     * ${NAME}-zookeeper
@@ -84,10 +84,10 @@ objects:
     source:
       dockerfile: |-
         FROM docker.io/wurstmeister/zookeeper:latest
-        RUN chgrp -R root /opt/zookeeper-${ZOOKEEPER_VERSION}       && \
-            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /conf && \
-            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION} /data && \
-            chmod g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}          && \
+        RUN chgrp -R root /opt/zookeeper-${ZOOKEEPER_VERSION}      && \
+            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}/conf && \
+            chmod -R g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}/data && \
+            chmod g+rw /opt/zookeeper-${ZOOKEEPER_VERSION}         && \
             chmod g+r /etc/ssh/*key
     strategy:
       type: Docker
