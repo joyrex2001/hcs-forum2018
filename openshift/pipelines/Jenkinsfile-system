@@ -12,7 +12,7 @@ pipeline {
     prodproject = "${projectbase}-prod"
   }
   stages {
-    stage("Update kafka and postgresql in ${buildproject}") {
+    stage("Update kafka and postgresql in dev project") {
       steps {
         script {
           openshift.withCluster() {
@@ -32,7 +32,7 @@ pipeline {
         }
       }
     }
-    stage("Update kafka and postgresql in ${prodproject}") {
+    stage("Update kafka and postgresql in prod project") {
       steps {
         script {
           openshift.withCluster() {
