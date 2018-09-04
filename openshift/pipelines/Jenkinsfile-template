@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-      label '${AGENT}'
+      label 'maven'
     }
   }
   environment {
