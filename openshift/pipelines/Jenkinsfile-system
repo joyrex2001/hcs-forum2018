@@ -8,9 +8,18 @@ pipeline {
     prodproject = "${projectbase}-prod"
   }
   stages {
+    stage("Checkout project") {
+      steps {
+        script {
+          checkout scm
+        }
+      }
+    }
     stage("Update kafka and postgresql in dev project") {
       steps {
         script {
+          sh "pwd"
+          sh "find ."
           openshift.withCluster() {
             openshift.withProject("${buildproject}") {
               [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
