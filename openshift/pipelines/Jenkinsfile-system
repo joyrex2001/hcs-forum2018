@@ -1,7 +1,7 @@
 pipeline {
   agent {
     node {
-      label 'maven' 
+      label 'maven'
     }
   }
   environment {
@@ -12,13 +12,6 @@ pipeline {
     prodproject = "${projectbase}-prod"
   }
   stages {
-    stage("Checkout project") {
-      steps {
-        script {
-          checkout scm
-        }
-      }
-    }
     stage("Update kafka and postgresql in dev project") {
       steps {
         script {
