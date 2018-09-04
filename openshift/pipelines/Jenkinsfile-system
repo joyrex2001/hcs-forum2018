@@ -1,17 +1,18 @@
-def template_kafka = "${TEMPLATE_KAFKA}"
-def template_database = "${TEMPLATE_DATABASE}"
-def projectbase = "${PROJECTBASE}"
-def buildproject = "${projectbase}-dev"
-def prodproject = "${projectbase}-prod"
-
 pipeline {
   agent {
     node {
       label 'maven'
     }
   }
+  environment {
+    template_kafka = "${TEMPLATE_KAFKA}"
+    template_database = "${TEMPLATE_DATABASE}"
+    projectbase = "${PROJECTBASE}"
+    buildproject = "${projectbase}-dev"
+    prodproject = "${projectbase}-prod"
+  }
   stages {
-    stage("Update kafka and postgresql in dev project") {
+    stage("Update kafka and postgresql in ${buildproject}") {
       steps {
         script {
           openshift.withCluster() {
@@ -31,7 +32,7 @@ pipeline {
         }
       }
     }
-    stage("Update kafka and postgresql in prod project") {
+    stage("Update kafka and postgresql in ${prodproject}") {
       steps {
         script {
           openshift.withCluster() {
