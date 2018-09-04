@@ -1,25 +1,22 @@
+def template_kafka = "${TEMPLATE_KAFKA}"
+def template_database = "${TEMPLATE_DATABASE}"
+def projectbase = "${PROJECTBASE}"
+def buildproject = "${projectbase}-dev"
+def prodproject = "${projectbase}-prod"
+
 pipeline {
   agent {
     node {
       label 'maven'
     }
   }
-  environment {
-    template_kafka = "${TEMPLATE_KAFKA}"
-    template_database = "${TEMPLATE_DATABASE}"
-    projectbase = "${PROJECTBASE}"
-    buildproject = "${projectbase}-dev"
-    prodproject = "${projectbase}-prod"
-  }
   stages {
     stage("Update kafka and postgresql in dev project") {
       steps {
         script {
-          [template_kafka, template_database].each {
-            openshift.withCluster() {
-              openshift.withProject("${buildproject}") {
-                openshift.apply(openshift.process("-f", it))
-              }
+          openshift.withCluster() {
+            openshift.withProject("${buildproject}") {
+              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
             }
           }
         }
@@ -37,11 +34,9 @@ pipeline {
     stage("Update kafka and postgresql in prod project") {
       steps {
         script {
-          [template_kafka, template_database].each {
-            openshift.withCluster() {
-              openshift.withProject("${prodproject}") {
-                openshift.apply(openshift.process("-f", it))
-              }
+          openshift.withCluster() {
+            openshift.withProject("${prodproject}") {
+              [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
             }
           }
         }
