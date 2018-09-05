@@ -23,6 +23,8 @@ objects:
     annotations:
       description: Exposes and load balances the kafka pods
       prometheus.io/scrape: "true"
+    labels:
+      app: "${NAME}"
   spec:
     ports:
     - name: kafka
@@ -37,6 +39,8 @@ objects:
     annotations:
       description: Exposes and load balances the zookeeper pods
       prometheus.io/scrape: "true"
+    labels:
+      app: "${NAME}"
   spec:
     ports:
     - name: zookeeper
@@ -49,7 +53,7 @@ objects:
   metadata:
     name: "${NAME}-kafka"
     labels:
-      app: "${NAME}-kafka"
+      app: "${NAME}"
   spec:
     output:
       to:
@@ -69,13 +73,13 @@ objects:
   metadata:
     name: "${NAME}-kafka"
     labels:
-      app: "${NAME}-kafka"
+      app: "${NAME}"
 - kind: BuildConfig
   apiVersion: v1
   metadata:
     name: "${NAME}-zookeeper"
     labels:
-      app: "${NAME}-zookeeper"
+      app: "${NAME}"
   spec:
     output:
       to:
@@ -99,13 +103,15 @@ objects:
   metadata:
     name: "${NAME}-zookeeper"
     labels:
-      app: "${NAME}-zookeeper"
+      app: "${NAME}"
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
     name: "${NAME}-kafka"
     annotations:
       description: Defines how to deploy the kafka server
+    labels:
+      app: "${NAME}"
   spec:
     replicas: 1
     selector:
@@ -162,6 +168,8 @@ objects:
     name: "${NAME}-zookeeper"
     annotations:
       description: Defines how to deploy the zookeeper server
+    labels:
+      app: "${NAME}"
   spec:
     replicas: 1
     selector:

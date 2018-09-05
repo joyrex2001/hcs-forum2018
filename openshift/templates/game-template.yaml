@@ -23,6 +23,8 @@ objects:
     annotations:
       description: Exposes and load balances the application pods
       prometheus.io/scrape: "true"
+    labels:
+      app: "${NAME}"
   spec:
     ports:
     - name: http
@@ -37,6 +39,8 @@ objects:
     annotations:
       description: Exposes and load balances the redis pods
       prometheus.io/scrape: "true"
+    labels:
+      app: "${NAME}"
   spec:
     ports:
     - name: redis
@@ -48,6 +52,8 @@ objects:
   apiVersion: v1
   metadata:
     name: "${NAME}"
+    labels:
+      app: "${NAME}"
   spec:
     to:
       kind: Service
@@ -60,12 +66,16 @@ objects:
     name: "${NAME}"
     annotations:
       description: Keeps track of changes in the application image
+    labels:
+      app: "${NAME}"
 - kind: BuildConfig
   apiVersion: v1
   metadata:
     name: "${NAME}"
     annotations:
       description: Defines how to build the application
+    labels:
+      app: "${NAME}"
   spec:
     source:
       type: Git
@@ -92,6 +102,8 @@ objects:
     name: "${NAME}"
     annotations:
       description: Defines how to deploy the application server
+    labels:
+      app: "${NAME}"
   spec:
     strategy:
       type: Rolling
@@ -144,6 +156,8 @@ objects:
     name: "${NAME}-redis"
     annotations:
       description: Defines how to deploy the redis server
+    labels:
+      app: "${NAME}"
   spec:
     replicas: 1
     selector:

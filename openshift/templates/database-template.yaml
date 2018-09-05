@@ -20,6 +20,8 @@ objects:
       template.openshift.io/expose-password: '{.data[''database-password'']}'
       template.openshift.io/expose-username: '{.data[''database-user'']}'
     name: ${DATABASE_SERVICE_NAME}
+    labels:
+      app: "${DATABASE_SERVICE_NAME}"
   stringData:
     database-name: ${POSTGRESQL_DATABASE}
     database-password: ${POSTGRESQL_PASSWORD}
@@ -30,6 +32,8 @@ objects:
     annotations:
       template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
     name: ${DATABASE_SERVICE_NAME}
+    labels:
+      app: "${DATABASE_SERVICE_NAME}"
   spec:
     ports:
     - name: postgresql
@@ -47,6 +51,8 @@ objects:
   kind: PersistentVolumeClaim
   metadata:
     name: ${DATABASE_SERVICE_NAME}
+    labels:
+      app: "${DATABASE_SERVICE_NAME}"
   spec:
     accessModes:
     - ReadWriteOnce
@@ -59,12 +65,16 @@ objects:
     annotations:
       template.alpha.openshift.io/wait-for-ready: "true"
     name: ${DATABASE_SERVICE_NAME}
+    labels:
+      app: "${DATABASE_SERVICE_NAME}"
   spec:
     replicas: 1
     selector:
       name: ${DATABASE_SERVICE_NAME}
     strategy:
       type: Recreate
+    triggers:
+    - type: ConfigChange
     template:
       metadata:
         labels:
