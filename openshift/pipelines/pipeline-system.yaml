@@ -36,6 +36,8 @@ objects:
           value: ${TEMPLATE_KAFKA}
         - name: TEMPLATE_DATABASE
           value: ${TEMPLATE_DATABASE}
+        - name: DATABASE_SERVICE_NAME
+          value: ${DATABASE_SERVICE_NAME}
         - name: SOURCE_REPOSITORY_URL
           value: ${SOURCE_REPOSITORY_URL}
         - name: SOURCE_REPOSITORY_REF
@@ -53,6 +55,8 @@ parameters:
   value: openshift/templates/kafka-template.yaml
 - name: TEMPLATE_DATABASE
   value: openshift/templates/database-template.yaml
+- name: DATABASE_SERVICE_NAME
+  value: postgresql
 - name: SOURCE_REPOSITORY_URL
   value: git@gitlab.com:hcs-openshift/hcs-forum2018.git
 - name: SOURCE_REPOSITORY_REF
