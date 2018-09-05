@@ -62,8 +62,6 @@ objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
     name: ${DATABASE_SERVICE_NAME}
     labels:
       app: "${DATABASE_SERVICE_NAME}"
@@ -71,8 +69,6 @@ objects:
     replicas: 1
     selector:
       name: ${DATABASE_SERVICE_NAME}
-    strategy:
-      type: Recreate
     triggers:
     - type: ConfigChange
     template:
@@ -98,7 +94,7 @@ objects:
               secretKeyRef:
                 key: database-name
                 name: ${DATABASE_SERVICE_NAME}
-          image: ' '
+          image: 'postgresql:9.6'
           imagePullPolicy: IfNotPresent
           livenessProbe:
             initialDelaySeconds: 30

@@ -7,7 +7,6 @@ pipeline {
   environment {
     template_kafka = "${TEMPLATE_KAFKA}"
     template_database = "${TEMPLATE_DATABASE}"
-    service_database = "${DATABASE_SERVICE_NAME}"
     projectbase = "${PROJECTBASE}"
     buildproject = "${projectbase}-dev"
     prodproject = "${projectbase}-prod"
@@ -19,7 +18,6 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject("${buildproject}") {
               [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
-              openshift.selector("dc/${service_database}").rollout().latest()
             }
           }
         }
@@ -40,7 +38,6 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject("${prodproject}") {
               [template_kafka, template_database].each { openshift.apply(openshift.process("-f", it)) }
-              openshift.selector("dc/${service_database}").rollout().latest()
             }
           }
         }
