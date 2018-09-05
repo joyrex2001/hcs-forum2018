@@ -94,7 +94,7 @@ objects:
               secretKeyRef:
                 key: database-name
                 name: ${DATABASE_SERVICE_NAME}
-          image: 'postgresql:9.6'
+          image: "postgres:9.5"
           imagePullPolicy: IfNotPresent
           livenessProbe:
             initialDelaySeconds: 30
@@ -123,7 +123,7 @@ objects:
             privileged: false
           terminationMessagePath: /dev/termination-log
           volumeMounts:
-          - mountPath: /var/lib/pgsql/data
+          - mountPath: /var/lib/postgresql/data
             name: ${DATABASE_SERVICE_NAME}-data
         dnsPolicy: ClusterFirst
         restartPolicy: Always
@@ -164,8 +164,3 @@ parameters:
   name: VOLUME_CAPACITY
   required: true
   value: 1Gi
-- description: Version of PostgreSQL image to be used (9.2, 9.4, 9.5 or latest).
-  displayName: Version of PostgreSQL Image
-  name: POSTGRESQL_VERSION
-  required: true
-  value: "9.5"
