@@ -79,21 +79,23 @@ objects:
         containers:
         - capabilities: {}
           env:
-          - name: POSTGRESQL_USER
+          - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
                 key: database-user
                 name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_PASSWORD
+          - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: database-password
                 name: ${DATABASE_SERVICE_NAME}
-          - name: POSTGRESQL_DATABASE
+          - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
                 key: database-name
                 name: ${DATABASE_SERVICE_NAME}
+          - name: PGDATA
+            value: /var/lib/postgresql/data/db-files
           image: "postgres:9.5"
           imagePullPolicy: IfNotPresent
           livenessProbe:
