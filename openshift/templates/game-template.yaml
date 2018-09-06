@@ -107,6 +107,15 @@ objects:
   spec:
     strategy:
       type: Rolling
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: false
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
     replicas: 1
     selector:
       name: "${NAME}"
@@ -118,7 +127,7 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: "${NAME}:latest"
+          image: " "
           env:
           - name: "KAFKA_SERVERS"
             value: "${KAFKA_SERVERS}"
