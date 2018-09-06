@@ -76,7 +76,15 @@ objects:
   spec:
     strategy:
       type: Rolling
-          name:
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: false
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
     replicas: 1
     selector:
       name: "${NAME}"
