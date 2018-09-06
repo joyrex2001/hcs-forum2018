@@ -76,15 +76,6 @@ objects:
   spec:
     strategy:
       type: Rolling
-    triggers:
-    - type: ImageChange
-      imageChangeParams:
-        automatic: false
-        containerNames:
-        - ${NAME}
-        from:
-          kind: ImageStreamTag
-          name: ${NAME}:latest
     replicas: 1
     selector:
       name: "${NAME}"
@@ -96,7 +87,7 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: " "
+          image: "${NAME}:latest"
           env:
           - name: "SERVER_PORT"
             value: "8080"
