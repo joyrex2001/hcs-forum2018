@@ -29,18 +29,6 @@ objects:
       targetPort: 8080
     selector:
       name: "${NAME}"
-- kind: Route
-  apiVersion: v1
-  metadata:
-    name: "${NAME}"
-    labels:
-      app: "${NAME}"
-  spec:
-    to:
-      kind: Service
-      name: "${NAME}"
-    tls:
-      termination: edge
 - kind: ImageStream
   apiVersion: v1
   metadata:
