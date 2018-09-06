@@ -108,7 +108,7 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: "${NAME}:latest"
+          image: " "
           env:
           - name: "SERVER_PORT"
             value: "8080"

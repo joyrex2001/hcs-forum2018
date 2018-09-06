@@ -127,7 +127,7 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: "${NAME}:latest"
+          image: " "
           env:
           - name: "KAFKA_SERVERS"
             value: "${KAFKA_SERVERS}"
