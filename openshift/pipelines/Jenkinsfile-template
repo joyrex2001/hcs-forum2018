@@ -45,7 +45,7 @@ pipeline {
               newDeploy = openshift.selector("dc/${appname}").rollout()
               sleep(1) // sleep to ensure dc is available
               //newDeploy.latest()
-              newDeploy.status("-w")
+              newDeploy.status("-w","--request-timeout=60")
             }
           }
         }
@@ -100,7 +100,7 @@ pipeline {
             openshift.withProject("${prodproject}") {
               newDeploy = openshift.selector("dc/${appname}").rollout()
               //newDeploy.latest()
-              newDeploy.status("-w")
+              newDeploy.status("-w","--request-timeout=60")
             }
           }
         }
