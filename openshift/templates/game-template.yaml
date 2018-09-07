@@ -170,6 +170,9 @@ objects:
         containers:
         - name: ${NAME}
           image: docker.io/redis
+          volumeMounts:
+            - mountPath: /data
+              name: redis-volume
           ports:
           - containerPort: 6379
           readinessProbe:
@@ -185,6 +188,9 @@ objects:
           resources:
             limits:
               memory: "${MEMORY_LIMIT_REDIS}"
+        volumes:
+        - name: redis-volume
+          emptyDir: {}
 parameters:
 - name: NAME
   displayName: Name
