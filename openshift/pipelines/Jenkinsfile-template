@@ -30,7 +30,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject("${buildproject}") {
               myBuild = openshift.selector(buildconfig).startBuild()
-              sleep(1000) // sleep to ensure build is started
+              sleep(1) // sleep to ensure build is started
               myBuild.logs("-f")
             }
           }
@@ -43,7 +43,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject("${buildproject}") {
               newDeploy = openshift.selector("dc/${appname}").rollout()
-              sleep(1000) // sleep to ensure dc is available
+              sleep(1) // sleep to ensure dc is available
               newDeploy.latest()
               newDeploy.status("-w")
             }
