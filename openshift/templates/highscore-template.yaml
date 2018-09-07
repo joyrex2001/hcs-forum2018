@@ -80,7 +80,7 @@ objects:
     triggers:
     - type: ImageChange
       imageChangeParams:
-        automatic: false
+        automatic: true
         containerNames:
         - ${NAME}
         from:
