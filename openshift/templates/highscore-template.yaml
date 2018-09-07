@@ -20,6 +20,7 @@ objects:
     annotations:
       description: Exposes and load balances the application pods
       prometheus.io/scrape: "true"
+      prometheus.io/path: /actuator/prometheus
     labels:
       app: "${NAME}"
   spec:

@@ -38,7 +38,6 @@ objects:
     name: "${NAME}-redis"
     annotations:
       description: Exposes and load balances the redis pods
-      prometheus.io/scrape: "true"
     labels:
       app: "${NAME}"
   spec:
@@ -127,7 +126,7 @@ objects:
       spec:
         containers:
         - name: ${NAME}
-          image: ' '
+          image: " "
           env:
           - name: "KAFKA_SERVERS"
             value: "${KAFKA_SERVERS}"

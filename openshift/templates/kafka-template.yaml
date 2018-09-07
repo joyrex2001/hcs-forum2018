@@ -22,7 +22,6 @@ objects:
     name: "${NAME}-kafka"
     annotations:
       description: Exposes and load balances the kafka pods
-      prometheus.io/scrape: "true"
     labels:
       app: "${NAME}"
   spec:
@@ -38,7 +37,6 @@ objects:
     name: "${NAME}-zookeeper"
     annotations:
       description: Exposes and load balances the zookeeper pods
-      prometheus.io/scrape: "true"
     labels:
       app: "${NAME}"
   spec:

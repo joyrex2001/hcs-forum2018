@@ -4,7 +4,7 @@ The demo can be deployed to OpenShift either manually, or by the use of the
 pipeline feature of OpenShift. This document describes how to deploy the demo
 using pipelines.
 
-## Project setup
+## Project setup with pipelines
 
 The pipeline setup consists out of three projects; `game-cicd`, `game-test`,
 and `game-prod`. The `game-cicd` project will contain a Jenkins instance with
@@ -53,3 +53,20 @@ deployment will automatically setup the `game-test` project based on the
 templates that are present in the `templates` folder, as configured in the
 `pipeline-template.yaml`. After this deployment is done, it will ask for
 approval to deploy to `game-prod` as well.
+
+## Deploy without pipelines
+
+The project can be deployed with out a ci-cd integration as well. To do this,
+simply process the templates in the templates folder, and rollout both game and
+highscore services. The additional required services are deployed upon
+processing the templates.
+
+```bash
+oc new-project game
+oc process -f templates/database-template.yaml | create -f -
+oc process -f templates/kafka-template.yaml | create -f -
+oc process -f templates/highscore-template.yaml | create -f -
+oc process -f templates/game-template.yaml | create -f -
+oc rollout latest dc/game
+oc rollout latest dc/highscore
+```
