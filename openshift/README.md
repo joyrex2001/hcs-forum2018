@@ -70,3 +70,11 @@ oc process -f templates/game-template.yaml | create -f -
 oc rollout latest dc/game
 oc rollout latest dc/highscore
 ```
+
+## Scaling the deployment
+
+The frontend and highscore services are stateless services and can be scaled
+up "indefinitely". The backend service, kafka/zookeeper, redis and postgres are
+not configured as a clustered setup and therefor are not scaleable. Increasing
+the number of replicas for these services will fail, but will not impact the
+current deployment.
