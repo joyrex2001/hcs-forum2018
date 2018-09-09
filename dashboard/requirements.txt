@@ -1,0 +1,4 @@
+Flask
+kafka-python
+flask_socketio
+eventlet

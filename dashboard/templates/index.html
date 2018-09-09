@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>Stack the Containers</title>
+</head>
+<body>
+  <script type="text/javascript" src="/js/socket.io.min.js"></script>
+  <script type="text/javascript" charset="utf-8">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', function() {
+        console.log('Websocket connected!');
+    });
+    socket.on('message', function(msg) {
+        console.log(msg);
+    });
+  </script>
+</body>
+</html>

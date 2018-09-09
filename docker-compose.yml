@@ -14,6 +14,19 @@ services:
       - front-tier
       - back-tier
 
+  dashboard:
+    build: ./dashboard
+    volumes:
+      - ./dashboard:/usr/src/app
+    environment:
+      # FLASK_DEBUG: 1
+      KAFKA_SERVERS: "kafka:9092"
+    ports:
+      - "5000:5000"
+    networks:
+      - front-tier
+      - back-tier
+
   highscore:
     build: ./highscore
     ports:
