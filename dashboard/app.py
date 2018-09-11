@@ -103,7 +103,7 @@ class Watch(threading.Thread):
 @socketio.on('helo')
 def helo_event():
     logging.debug("received helo")
-    emit('highscore', highscore, broadcast=True)
+    emit('topic_highscore', highscore, broadcast=True)
 
 @app.route('/js/<path:path>')
 def send_js(path):
