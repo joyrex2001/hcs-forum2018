@@ -5,11 +5,72 @@
 <body>
   <script type="text/javascript" src="/js/socket.io.min.js"></script>
   <script type="text/javascript" charset="utf-8">
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-    socket.on('connect', function() {
-        console.log('Websocket connected!');
+    /* --------------------------------------------------------- */
+    /* Cool inline hacking for websockets ;-)                    */
+    /* --------------------------------------------------------- */
+    var ping = Date.now();
+    var timeout = 10000;
+
+    /* --------------------------------------------------------- */
+    /* watchDog will check if the websocket connection is still  */
+    /* alive, and if not reestablisch the connection.            */
+    /* --------------------------------------------------------- */
+    function watchDog() {
+      if (!isConnected()) {
+        console.log( 'ping timeout' );
+        connect();
+      }
+      window.setTimeout( function() { watchDog() }, timeout+1000);
+    }
+    watchDog(); /* start the watchdog... */
+
+    /* --------------------------------------------------------- */
+    /* isConnected will check if we recently received a ping     */
+    /* from the server.                                          */
+    /* --------------------------------------------------------- */
+    function isConnected() {
+        return ( (Date.now()-ping) < timeout );
+    }
+
+    /* --------------------------------------------------------- */
+    /* websocket handling and events                             */
+    /* --------------------------------------------------------- */
+    var socket = io.connect( undefined, {
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionDelayMax : 5000,
+          reconnectionAttempts: Infinity
+        } );
+
+    socket.on( 'connect', function () {
+        console.log( 'connected to server' );
+    } );
+
+    socket.on( 'disconnect', function () {
+      console.log( 'disconnected from server' );
+      window.setTimeout( 'app.connect()', timeout );
+    } );
+
+    socket.on( 'ping', function (data) {
+      ping = Date.now();
+    } );
+
+    /* --------------------------------------------------------- */
+    /* websocket custom events                                   */
+    /* --------------------------------------------------------- */
+    socket.on('topic_newgame', function(msg) {
+        console.log(msg);
     });
-    socket.on('message', function(msg) {
+    socket.on('topic_connect', function(msg) {
+        console.log(msg);
+    });
+    socket.on('topic_disconnect', function(msg) {
+        console.log(msg);
+    });
+    socket.on('topic_score', function(msg) {
+        console.log(msg);
+    });
+    socket.on('topic_highscore', function(msg) {
         console.log(msg);
     });
   </script>

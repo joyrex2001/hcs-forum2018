@@ -1,11 +1,17 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO, join_room, emit
 from kafka import KafkaConsumer
+import os, threading, time, logging
 
-import os, threading, time
+## ----------------------------------------------------------------------------
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet')
+
+logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=logging.INFO)
 
 ## ----------------------------------------------------------------------------
 ## Consumer
@@ -14,6 +20,7 @@ socketio = SocketIO(app)
 ## to the relevant webclients.
 ## ----------------------------------------------------------------------------
 
+highscore = ""
 class Consumer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -24,15 +31,20 @@ class Consumer(threading.Thread):
 
     def run(self):
         server = os.getenv("KAFKA_SERVERS", "localhost:9092")
-        print ("Connecting to kafka on: ",server)
+        logging.info("Connecting to kafka on: ",server)
         consumer = KafkaConsumer(bootstrap_servers=[server],
                                  auto_offset_reset='earliest',
                                  consumer_timeout_ms=1000)
         consumer.subscribe(['newgame', 'connect', 'disconnect', 'score', 'highscore'])
         while not self.stop_event.is_set():
             for message in consumer:
-                print("received "+str(message.value)+" on topic "+str(message.topic))
-                socketio.emit(str(message.topic), str(message.value), namespace='/dashboard')
+                topic = str(message.topic)
+                value = str(message.value.decode('utf8'))
+                logging.info("received "+value+" on topic "+topic)
+                if topic == "highscore":
+                    global highscore
+                    highscore = value ## whistles...
+                socketio.emit("topic_"+topic,value,broadcast=True)
                 if self.stop_event.is_set():
                     break
 
@@ -53,7 +65,8 @@ class Ping(threading.Thread):
 
     def run(self):
         while not self.stop_event.is_set():
-            socketio.emit('ping')
+            logging.debug("send ping")
+            socketio.emit('ping','pong',broadcast=True)
             time.sleep(10)
             if self.stop_event.is_set():
                 break
@@ -86,6 +99,11 @@ class Watch(threading.Thread):
 ## ----------------------------------------------------------------------------
 ## routes
 ## ----------------------------------------------------------------------------
+
+@socketio.on('helo')
+def helo_event():
+    logging.debug("received helo")
+    emit('highscore', highscore, broadcast=True)
 
 @app.route('/js/<path:path>')
 def send_js(path):
