@@ -100,14 +100,15 @@ class Watch(threading.Thread):
 ## routes
 ## ----------------------------------------------------------------------------
 
-@socketio.on('helo')
-def helo_event():
-    logging.debug("received helo")
+@socketio.on('connect')
+def connect_event():
+    logging.debug("received connect")
+    logging.info("broadcast highscores: "+highscore)
     emit('topic_highscore', highscore, broadcast=True)
 
-@app.route('/js/<path:path>')
+@app.route('/<path:path>')
 def send_js(path):
-    return send_from_directory('static/js', path)
+    return send_from_directory('static/', path)
 
 @app.route("/")
 def index():

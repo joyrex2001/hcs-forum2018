@@ -1,9 +1,38 @@
 <html>
 <head>
     <title>Stack the Containers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <style>
+      .hacker {
+          background-color: black;
+          color: #dddddd;
+          text-align: center;
+      }
+      .logo {
+          font-size: 40px;
+          background-color: black;
+          font-weight: bold;
+          font-family: monospace;
+          color: #dddddd;
+          text-shadow: 0px 0px 3px #fff, 0px 0px 10px #fff;
+      }
+      .console {
+          font-size: 16px;
+          font-family: monospace;
+          white-space: nowrap;
+          text-overflow: clip;
+      }
+      .animatenew {
+        background: #616AFF;
+        opacity: 0;
+      }
+    </style>
 </head>
-<body>
+<body class="hacker">
   <script type="text/javascript" src="/js/socket.io.min.js"></script>
+  <script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="/js/animate.js"></script>
   <script type="text/javascript" charset="utf-8">
     /* --------------------------------------------------------- */
     /* Cool inline hacking for websockets ;-)                    */
@@ -21,8 +50,7 @@
         connect();
       }
       window.setTimeout( function() { watchDog() }, timeout+1000);
-    }
-    watchDog(); /* start the watchdog... */
+    }; watchDog(); /* start the watchdog... */
 
     /* --------------------------------------------------------- */
     /* isConnected will check if we recently received a ping     */
@@ -35,12 +63,15 @@
     /* --------------------------------------------------------- */
     /* websocket handling and events                             */
     /* --------------------------------------------------------- */
-    var socket = io.connect( undefined, {
+    var socket;
+    function connect() {
+      socket = io.connect( undefined, {
           reconnection: true,
           reconnectionDelay: 1000,
           reconnectionDelayMax : 5000,
           reconnectionAttempts: Infinity
         } );
+    }; connect();
 
     socket.on( 'connect', function () {
         console.log( 'connected to server' );
@@ -48,7 +79,7 @@
 
     socket.on( 'disconnect', function () {
       console.log( 'disconnected from server' );
-      window.setTimeout( 'app.connect()', timeout );
+      window.setTimeout( 'connect()', timeout );
     } );
 
     socket.on( 'ping', function (data) {
@@ -60,19 +91,116 @@
     /* --------------------------------------------------------- */
     socket.on('topic_newgame', function(msg) {
         console.log(msg);
+        $('#newgame').text(JSON.parse(msg).name+" started a game");
+        glow("newgame");
     });
+
     socket.on('topic_connect', function(msg) {
         console.log(msg);
+        $('#connect').text(JSON.parse(msg).name+" connected");
+        glow("connect");
     });
+
     socket.on('topic_disconnect', function(msg) {
         console.log(msg);
+        $('#disconnect').text(JSON.parse(msg).name+" disconnected");
+        glow("disconnect");
     });
+
     socket.on('topic_score', function(msg) {
         console.log(msg);
+        d = JSON.parse(msg);
+        $('#score').text(d.name+" scored "+d.score);
+        glow("score");
     });
+
     socket.on('topic_highscore', function(msg) {
         console.log(msg);
+        scores = "";
+        el = 1;
+        JSON.parse(msg).forEach(function(s) {
+          $('#highscore'+el+'name').text(s.name);
+          $('#highscore'+el+'score').text(s.score);
+          el++;
+        });
     });
+
+    /* --------------------------------------------------------- */
+    /* supacool fx                                               */
+    /* --------------------------------------------------------- */
+    function glow(id) {
+        el = document.getElementById(id);
+        animate({
+          el: el,
+          duration: 2000,
+          delay: index => index * 100,
+          opacity: [0,1],
+          easing: "linear",
+          complete: function() {
+            animate({
+              el: el,
+              duration: 2000,
+              delay: index => index * 100,
+              opacity: [1,0],
+              easing: "linear"
+            })
+          }
+        });
+    }
+    /* --------------------------------------------------------- */
   </script>
+
+  <div class="container">
+    <hr>
+    <div class="logo">STACK THE CONTAINERS</div>
+    <hr>
+  </div>
+
+  <div>
+      <span id="highscore1name" class="highscore">&nbsp;</span>
+      <span id="highscore1score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore2name" class="highscore">&nbsp;</span>
+      <span id="highscore2score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore3name" class="highscore">&nbsp;</span>
+      <span id="highscore3score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore4name" class="highscore">&nbsp;</span>
+      <span id="highscore4score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore5name" class="highscore">&nbsp;</span>
+      <span id="highscore5score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore6name" class="highscore">&nbsp;</span>
+      <span id="highscore6score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore7name" class="highscore">&nbsp;</span>
+      <span id="highscore7score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore8name" class="highscore">&nbsp;</span>
+      <span id="highscore8score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore9name" class="highscore">&nbsp;</span>
+      <span id="highscore9score" class="highscore">&nbsp;</span>
+  </div>
+  <div>
+      <span id="highscore10name" class="highscore">&nbsp;</span>
+      <span id="highscore10score" class="highscore">&nbsp;</span>
+  </div>
+
+  <div id="connect" class="animatenew">&nbsp;</div>
+  <div id="newgame" class="animatenew">&nbsp;</div>
+  <div id="score" class="animatenew">&nbsp;</div>
+  <div id="disconnect" class="animatenew">&nbsp;</div>
+
 </body>
 </html>
