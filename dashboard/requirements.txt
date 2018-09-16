@@ -1,4 +1,4 @@
-Flask
-kafka-python
-flask_socketio
-eventlet
+Flask==1.0.2
+kafka-python==1.4.3
+Flask-SocketIO==3.0.1
+eventlet==0.24.1

@@ -19,7 +19,9 @@ services:
     volumes:
       - ./dashboard:/usr/src/app
     environment:
-      # FLASK_DEBUG: 1
+      #FLASK_DEBUG: 1
+      #USERNAME: dashboard
+      #PASSWORD: dashboard
       KAFKA_SERVERS: "kafka:9092"
     ports:
       - "5000:5000"

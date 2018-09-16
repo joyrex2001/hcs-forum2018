@@ -1,17 +1,27 @@
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, make_response, render_template, send_from_directory, request
 from flask_socketio import SocketIO, join_room, emit
 from kafka import KafkaConsumer
-import os, threading, time, logging
+import os, threading, time, logging, functools
+
+## ----------------------------------------------------------------------------
+## configuration of dashboard - use the below environment variables
+## ----------------------------------------------------------------------------
+
+config = {
+  "KAFKA_SERVERS": os.getenv("KAFKA_SERVERS", "localhost:9092"),
+  "USERNAME":      os.getenv("USERNAME"),
+  "PASSWORD":      os.getenv("PASSWORD")
+}
+
+logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=logging.ERROR)
 
 ## ----------------------------------------------------------------------------
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
-
-logging.basicConfig(format='%(asctime)s [%(levelname)s] %(message)s', level=logging.INFO)
 
 ## ----------------------------------------------------------------------------
 ## Consumer
@@ -30,7 +40,7 @@ class Consumer(threading.Thread):
         self.stop_event.set()
 
     def run(self):
-        server = os.getenv("KAFKA_SERVERS", "localhost:9092")
+        server = config["KAFKA_SERVERS"]
         logging.info("Connecting to kafka on: ",server)
         consumer = KafkaConsumer(bootstrap_servers=[server],
                                  auto_offset_reset='earliest',
@@ -97,6 +107,30 @@ class Watch(threading.Thread):
             time.sleep(2)
 
 ## ----------------------------------------------------------------------------
+## authentication
+## ----------------------------------------------------------------------------
+
+def ok_user_and_password(username, password):
+    return username == config["USERNAME"] and password == config["PASSWORD"]
+
+def authenticate():
+    resp = make_response(render_template('unauthorized.html'))
+    resp.status_code = 401
+    resp.headers['WWW-Authenticate'] = 'Basic realm="Main"'
+    return resp
+
+def requires_authorization(f):
+    @functools.wraps(f)
+    def decorated(*args, **kwargs):
+        if config["USERNAME"] == '' or config["USERNAME"] is None:
+            return f(*args, **kwargs)
+        auth = request.authorization
+        if not auth or not ok_user_and_password(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+## ----------------------------------------------------------------------------
 ## routes
 ## ----------------------------------------------------------------------------
 
@@ -111,6 +145,7 @@ def send_js(path):
     return send_from_directory('static/', path)
 
 @app.route("/")
+@requires_authorization
 def index():
     return render_template('index.html')
 
