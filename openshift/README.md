@@ -52,7 +52,7 @@ oc process -f pipelines/pipeline-template.yaml \
 
 Optionally, the dashboard pipeline.
 ```bash
- oc process -f pipelines/dashboard-template.yaml \
+ oc process -f pipelines/pipeline-template.yaml \
    -p APPLICATION_NAME="dashboard" \
    -p TEMPLATE="openshift/templates/dashboard-template.yaml" \
    -p CONTEXT_DIR="dashboard" \
