@@ -126,6 +126,7 @@ objects:
           livenessProbe:
             timeoutSeconds: 3
             initialDelaySeconds: 30
+            httpGet:
               path: "/healthz"
               port: 5000
           resources:
