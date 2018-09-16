@@ -21,7 +21,7 @@ function build() {
     .pipe(uglify({ compress: { hoist_funs: true } }))
     .pipe(gulp.dest(dest));
 
-  gulp.src("./frontend/index.html")
+  gulp.src("./frontend/*.html")
     .pipe(gulp.dest(dest));
 
   gulp.src("./frontend/images/**/*")

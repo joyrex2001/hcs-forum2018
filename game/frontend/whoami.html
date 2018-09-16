@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<title>HCS - Stack the Containers</title>
+    <body>
+      <script>
+      var player = localStorage.getItem("stcplayer")
+      if (player != null) {
+        try {
+          player = JSON.parse(localStorage.getItem("stcplayer"))
+          document.write("id: "+player.id+"<br>")
+          document.write("name: "+player.name+"<br>")
+          document.write("score: "+player.highscore+"<br>")
+        } catch(e) {
+          document.write("failed loading player "+e)
+        }
+      } else {
+        document.write("no player info found")
+      }
+      </script>
+    </body>
+</html>
