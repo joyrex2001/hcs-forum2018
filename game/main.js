@@ -19,6 +19,7 @@ const prEndGame    = new prometheus.Counter({name:'endgame_count', help:'Total e
 const prConnect    = new prometheus.Counter({name:'connect_count', help:'Total connects'})
 const prDisconnect = new prometheus.Counter({name:'disconnect_count', help:'Total disconnects'})
 const prAbuse      = new prometheus.Counter({name:'hack_count', help:'Total hack attempts'})
+const prHighscore  = new prometheus.Gauge({ name: 'highscore', help: 'Current highscore' });
 
 // highscores is a global variable that contains the latest highscores. This
 // variable is updated by the kafka consumer whenever a new highscores message
@@ -65,6 +66,7 @@ function updateLocalHighscore(player,score) {
       newHighscores.push(d)
     })
     highscores = newHighscores.slice(0,10)
+    try { prHighscore.set(highscores[0].score) } catch(e) {}
 }
 
 // eventHandler will handle the events for registered player on given socket.
@@ -109,6 +111,7 @@ function main() {
       var jsn = buf.toString()
       console.log(`received ${jsn}`)
       highscores = JSON.parse(jsn)
+      try { prHighscore.set(highscores[0].score) } catch(e) {}
       io.emit('highscore',highscores)
     })
     process.on('SIGINT', () => {
