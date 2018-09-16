@@ -164,7 +164,7 @@ def main():
         task.start()
     Watch(tasks).start()
     ## ...and state the web stuff!
-    socketio.run(app)
+    socketio.run(app, host="0.0.0.0")
 
 ## ----------------------------------------------------------------------------
 if __name__ == "__main__":
