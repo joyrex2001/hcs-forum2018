@@ -1,0 +1,174 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: dashboard-template
+  annotations:
+    openshift.io/display-name: Dashboard Template
+    description: The HCS Forum 2018 Dashboard - Dashboard service
+message: |-
+  The following service(s) have been created in your project: ${NAME}.
+
+  Good luck!
+labels:
+  template: dashboard-template
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      app: "${NAME}"
+  spec:
+    ports:
+    - name: http
+      port: 5000
+      targetPort: 8080
+    selector:
+      name: "${NAME}"
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    labels:
+      app: "${NAME}"
+  spec:
+    to:
+      kind: Service
+      name: "${NAME}"
+    tls:
+      termination: edge
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Keeps track of changes in the application image
+    labels:
+      app: "${NAME}"
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Defines how to build the application
+    labels:
+      app: "${NAME}"
+  spec:
+    source:
+      type: Git
+      git:
+        uri: "${SOURCE_REPOSITORY_URL}"
+        ref: "${SOURCE_REPOSITORY_REF}"
+      contextDir: "${CONTEXT_DIR}"
+      sourceSecret:
+        name: gitlab
+    strategy:
+      type: Source
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python:latest
+          namespace: openshift
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}:latest"
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: "${NAME}"
+    annotations:
+      description: Defines how to deploy the application server
+    labels:
+      app: "${NAME}"
+  spec:
+    strategy:
+      type: Rolling
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
+    replicas: 1
+    selector:
+      name: "${NAME}"
+    template:
+      metadata:
+        name: "${NAME}"
+        labels:
+          name: "${NAME}"
+      spec:
+        containers:
+        - name: ${NAME}
+          image: " "
+          env:
+          - name: "KAFKA_SERVERS"
+            value: "${KAFKA_SERVERS}"
+          - name: "USERNAME"
+            value: "${USERNAME}"
+          - name: "PASSWORD"
+            value: "${PASSWORD}"
+          ports:
+          - containerPort: 5000
+          readinessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 3
+            httpGet:
+              path: "/healthz"
+              port: 5000
+          livenessProbe:
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+              path: "/healthz"
+              port: 5000
+          resources:
+            limits:
+              memory: "${MEMORY_LIMIT}"
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the frontend objects defined in this template.
+  required: true
+  value: dashboard
+- name: MEMORY_LIMIT
+  displayName: Memory Limit
+  description: Maximum amount of memory the frontend container can use.
+  required: true
+  value: 512Mi
+- name: KAFKA_SERVERS
+  displayName: Kafka servers
+  description: Comma seperated list of kafka hostnames to bootstrap the kafka connection.
+  required: false
+  value: "kafka-kafka:9092"
+- name: USERNAME
+  displayName: Dashboard login username
+  description: Username to log into the dashboard.
+  required: false
+  value: ""
+- name: PASSWORD
+  displayName: Dashboard login password
+  description: Password to log into the dashboard.
+  required: false
+  value: ""
+- name: SOURCE_REPOSITORY_URL
+  displayName: Git Repository URL
+  description: The URL of the repository with your application source code.
+  required: true
+  value: git@gitlab.com:hcs-openshift/hcs-forum2018.git
+- name: SOURCE_REPOSITORY_REF
+  displayName: Git Reference
+  description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch.
+  value: master
+- name: CONTEXT_DIR
+  displayName: Context Directory
+  description: Set this to the relative path to your project if it is not in the root
+    of your repository.
+  value: dashboard

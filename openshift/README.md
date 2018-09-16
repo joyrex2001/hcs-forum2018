@@ -27,6 +27,8 @@ oc policy add-role-to-user edit system:serviceaccount:game-cid:jenkins -n game-p
 The setup consists out of three pipelines. One pipeline for the base setup,
 which will deploy Kafka/Zookeeper and PostgreSQL. And two seperate pipelines
 which are responsible for the deployment of the `game` and `highscore` services.
+Optionally you can also add the `dashboard` to the deployment, which will, if
+added, have its' seperate deployment.
 
 ```bash
 oc process -f pipelines/pipeline-system.yaml | oc create -f - -n game-cicd
@@ -45,6 +47,15 @@ oc process -f pipelines/pipeline-template.yaml \
    -p APPLICATION_NAME="highscore" \
    -p TEMPLATE="openshift/templates/highscore-template.yaml" \
    -p CONTEXT_DIR="highscore" \
+   | oc create -f - -n game-cicd
+```
+
+Optionally, the dashboard pipeline.
+```bash
+ oc process -f pipelines/dashboard-template.yaml \
+   -p APPLICATION_NAME="dashboard" \
+   -p TEMPLATE="openshift/templates/dashboard-template.yaml" \
+   -p CONTEXT_DIR="dashboard" \
    | oc create -f - -n game-cicd
 ```
 
@@ -69,6 +80,13 @@ oc process -f templates/highscore-template.yaml | create -f -
 oc process -f templates/game-template.yaml | create -f -
 oc rollout latest dc/game
 oc rollout latest dc/highscore
+```
+
+Optionally, you can also rollout the dashboard.
+
+```bash
+oc process -f templates/dashboard-template.yaml | create -f -
+oc rollout latest dc/dashboard
 ```
 
 ## Scaling the deployment

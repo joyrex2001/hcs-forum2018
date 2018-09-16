@@ -144,6 +144,10 @@ def connect_event():
 def send_js(path):
     return send_from_directory('static/', path)
 
+@app.route("/healthz")
+def healthz():
+    return "ok"
+
 @app.route("/")
 @requires_authorization
 def index():
