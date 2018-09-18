@@ -27,7 +27,7 @@ var wsc = {
     } );
     this.socket.on( 'disconnect', function () {
       console.log( 'disconnected from server' );
-      window.setTimeout( 'app.connect()', self.timeout );
+      window.setTimeout( 'wsc.connect()', self.timeout );
     } );
     this.socket.on( 'highscore', function (data) {
       self.highscore = data;
