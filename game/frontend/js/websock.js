@@ -7,6 +7,7 @@ var wsc = {
   timeout: 10000,
   player: null,
   score: null,
+  backoff: 250,
   // connection management
   connect: function() {
     var self = this;
@@ -24,10 +25,12 @@ var wsc = {
     this.socket.on( 'connect', function () {
       console.log( 'connected to server' );
       self.socket.emit('init', self.player);
+      self.backoff = 250;
     } );
     this.socket.on( 'disconnect', function () {
       console.log( 'disconnected from server' );
-      window.setTimeout( 'wsc.connect()', self.timeout );
+      window.setTimeout( 'wsc.connect()', self.backoff );
+      self.backoff = self.backoff<self.timeout? self.backoff+250: self.timeout;
     } );
     this.socket.on( 'highscore', function (data) {
       self.highscore = data;
