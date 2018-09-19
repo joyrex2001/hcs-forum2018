@@ -63,6 +63,7 @@ var wsc = {
     return this.highscore;
   },
   sendScore: function(player, score) {
+    this.connect();
     this.score = score;
     this.socket.emit('gameover',player, score);
   }
