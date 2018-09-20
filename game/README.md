@@ -6,6 +6,6 @@ To be able to run this game a commercial library is required. This library can
 be purchased at https://phaser.io/shop/plugins/box2d.
 
 Once downloaded; the `box2d-plugin-full.js` should be copied to the
-`game/frontend/lib` folder.
+`game/frontend/js/lib` folder.
 
 The service exposes prometheus values on: http://localhost:8080/metrics

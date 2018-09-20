@@ -4,6 +4,14 @@ This repository contains a game "Stack The Containers" and some additional
 services to demonstrate a microservices setup. The project can be run both
 locally, using `docker-compose`, or in an OpenShift environment.
 
+## Dependencies
+
+To be able to run this game a commercial library is required. This library can
+be purchased at https://phaser.io/shop/plugins/box2d.
+
+Once downloaded; the `box2d-plugin-full.js` should be copied to the
+`game/frontend/js/lib` folder.
+
 ## Running using docker-compose
 
 To run the project in docker-compose, you can simply do ```docker-compose up```
