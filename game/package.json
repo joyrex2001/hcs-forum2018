@@ -19,6 +19,7 @@
     "gulp-uglify": "^3.0.1",
     "lodash": ">=4.17.11",
     "kafka-node": "^2.6.1",
+    "minimatch": ">=3.0.2",
     "morgan": "^1.9.1",
     "prom-client": "^10.2.3",
     "redis": "^2.8.0",
